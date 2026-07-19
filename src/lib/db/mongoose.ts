@@ -16,6 +16,8 @@ if (!MONGODB_URI) {
   throw new Error("Missing MONGODB_URI in environment variables")
 }
 
+const resolvedMongoUri: string = MONGODB_URI
+
 const globalWithMongoose = global as typeof globalThis & {
   mongooseCache?: {
     conn: typeof mongoose | null
@@ -33,7 +35,7 @@ export async function connectToDatabase() {
   }
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI, {
+    cached.promise = mongoose.connect(resolvedMongoUri, {
       bufferCommands: false,
     })
   }
@@ -41,3 +43,5 @@ export async function connectToDatabase() {
   cached.conn = await cached.promise
   return cached.conn
 }
+
+export const connectDB = connectToDatabase

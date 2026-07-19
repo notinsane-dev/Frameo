@@ -1,0 +1,47 @@
+import { resend } from "@/lib/email/mailer"
+import {
+  passwordResetEmailTemplate,
+  verificationEmailTemplate,
+  welcomeEmailTemplate,
+} from "@/lib/email/templates"
+
+const EMAIL_FROM = process.env.EMAIL_FROM
+const RESEND_ALLOW_TEST_MODE = process.env.RESEND_ALLOW_TEST_MODE === "true"
+
+if (!EMAIL_FROM) {
+  throw new Error("Missing EMAIL_FROM in environment variables")
+}
+
+async function sendEmail(to: string, subject: string, html: string): Promise<void> {
+  const { error } = await resend.emails.send({
+    from: `CineAI <${EMAIL_FROM}>`,
+    to,
+    subject,
+    html,
+  })
+
+  if (error) {
+    const isRecipientRestrictionError = error.message.includes(
+      "You can only send testing emails to your own email address",
+    )
+
+    if (RESEND_ALLOW_TEST_MODE && isRecipientRestrictionError) {
+      console.warn(`Resend test mode: skipped email \"${subject}\" to ${to}. ${error.message}`)
+      return
+    }
+
+    throw new Error(`Resend email failed: ${error.message}`)
+  }
+}
+
+export async function sendVerificationEmail(email: string, name: string, url: string): Promise<void> {
+  await sendEmail(email, "Verify your CineAI account", verificationEmailTemplate(name, url))
+}
+
+export async function sendPasswordResetEmail(email: string, name: string, url: string): Promise<void> {
+  await sendEmail(email, "Reset your CineAI password", passwordResetEmailTemplate(name, url))
+}
+
+export async function sendWelcomeEmail(email: string, name: string): Promise<void> {
+  await sendEmail(email, "Welcome to CineAI", welcomeEmailTemplate(name))
+}
