@@ -1,7 +1,23 @@
+import { Suspense } from "react"
+
+import { Footer } from "@/components/layout/Footer"
+import { Navbar } from "@/components/layout/Navbar"
+import { PageTransition } from "@/components/shared/PageTransition"
+
 export default function MainLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return <>{children}</>
+  return (
+    <div className="min-h-screen bg-[#080808] text-white">
+      <Suspense fallback={null}>
+        <Navbar />
+      </Suspense>
+      <main className="pt-16">
+        <PageTransition>{children}</PageTransition>
+      </main>
+      <Footer />
+    </div>
+  )
 }
