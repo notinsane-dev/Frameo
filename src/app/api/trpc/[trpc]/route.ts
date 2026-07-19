@@ -1,9 +1,14 @@
-import { NextResponse } from "next/server"
+import { fetchRequestHandler } from "@trpc/server/adapters/fetch"
 
-export async function GET() {
-  return NextResponse.json({ message: "tRPC route not implemented yet" }, { status: 501 })
-}
+import { appRouter } from "@/server/routers/_app"
+import { createContext } from "@/server/trpc"
 
-export async function POST() {
-  return NextResponse.json({ message: "tRPC route not implemented yet" }, { status: 501 })
-}
+const handler = (req: Request) =>
+  fetchRequestHandler({
+    endpoint: "/api/trpc",
+    req,
+    router: appRouter,
+    createContext: () => createContext({ req }),
+  })
+
+export { handler as GET, handler as POST }

@@ -1,9 +1,4 @@
-import { NextResponse } from "next/server"
+import { auth } from "@/lib/auth/auth"
 
-export async function GET() {
-  return NextResponse.json({ message: "Auth route not implemented yet" }, { status: 501 })
-}
-
-export async function POST() {
-  return NextResponse.json({ message: "Auth route not implemented yet" }, { status: 501 })
-}
+export const GET = auth.handler
+export const POST = auth.handler
