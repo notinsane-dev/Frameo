@@ -33,12 +33,21 @@ export function MovieCarousel({ movies, title, subtitle }: MovieCarouselProps) {
     })
   }
 
+  if (!movies.length) return null
+
   return (
-    <section className="space-y-4">
+    <section className="space-y-6">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h3 className="font-heading text-2xl text-white">{title}</h3>
-          {subtitle ? <p className="text-sm text-white/50">{subtitle}</p> : null}
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--color-signal)]">
+            Related
+          </p>
+          <h3 className="mt-2 font-heading text-3xl font-bold tracking-tight text-[var(--color-text)] md:text-4xl">
+            {title}
+          </h3>
+          {subtitle ? (
+            <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{subtitle}</p>
+          ) : null}
         </div>
       </div>
 
@@ -72,7 +81,7 @@ export function MovieCarousel({ movies, title, subtitle }: MovieCarouselProps) {
                 exit="hidden"
                 type="button"
                 onClick={() => scrollByCards("left")}
-                className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full border border-[#C9A84C]/30 bg-black/70 p-2 text-[#C9A84C]"
+                className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full border border-[var(--color-signal-border)] bg-[var(--color-ink)]/80 p-2 text-[var(--color-signal)] backdrop-blur-sm"
                 aria-label="Scroll left"
               >
                 <ChevronLeft className="h-5 w-5" />
@@ -85,7 +94,7 @@ export function MovieCarousel({ movies, title, subtitle }: MovieCarouselProps) {
                 exit="hidden"
                 type="button"
                 onClick={() => scrollByCards("right")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full border border-[#C9A84C]/30 bg-black/70 p-2 text-[#C9A84C]"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full border border-[var(--color-signal-border)] bg-[var(--color-ink)]/80 p-2 text-[var(--color-signal)] backdrop-blur-sm"
                 aria-label="Scroll right"
               >
                 <ChevronRight className="h-5 w-5" />

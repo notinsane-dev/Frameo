@@ -15,7 +15,11 @@ type MovieGridProps = {
 export function MovieGrid({ movies, loading = false, title }: MovieGridProps) {
   return (
     <section className="space-y-4">
-      {title ? <h2 className="font-heading text-2xl text-white">{title}</h2> : null}
+      {title ? (
+        <h2 className="font-heading text-2xl font-semibold tracking-tight text-[var(--color-text)]">
+          {title}
+        </h2>
+      ) : null}
 
       <motion.div
         variants={staggerContainer}
@@ -25,7 +29,10 @@ export function MovieGrid({ movies, loading = false, title }: MovieGridProps) {
       >
         {loading
           ? Array.from({ length: 12 }).map((_, index) => (
-              <div key={index} className="aspect-[2/3] animate-pulse rounded-xl bg-white/5" />
+              <div
+                key={index}
+                className="aspect-[2/3] rounded-xl border border-[var(--color-border)] skeleton"
+              />
             ))
           : movies.map((movie) => (
               <motion.div key={movie.id} variants={listItem}>
