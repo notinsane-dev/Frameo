@@ -1,19 +1,20 @@
 import type { Metadata } from "next"
-import { Cormorant_Garamond, JetBrains_Mono, Manrope } from "next/font/google"
+import { JetBrains_Mono, Outfit, Space_Grotesk } from "next/font/google"
 
 import { AppProviders } from "@/components/providers/AppProviders"
 import "./globals.css"
 
 import { cn } from "@/lib/utils"
 
-const manrope = Manrope({
+const outfit = Outfit({
   subsets: ["latin"],
-  variable: "--font-dm-sans",
+  variable: "--font-outfit",
 })
 
-const cormorantGaramond = Cormorant_Garamond({
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
-  variable: "--font-playfair",
+  variable: "--font-space-grotesk",
+  weight: ["500", "600", "700"],
 })
 
 const jetBrainsMono = JetBrains_Mono({
@@ -24,33 +25,33 @@ const jetBrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL!),
   title: {
-    default: "CineAI — AI-Powered Movie Recommendations",
-    template: "%s | CineAI",
+    default: "Frameo — Decide what to watch next",
+    template: "%s | Frameo",
   },
   description:
-    "Discover your next favorite movie with AI-powered recommendations tailored to your taste and mood.",
-  keywords: ["movies", "AI recommendations", "film discovery", "movie ratings", "watchlist"],
-  authors: [{ name: "CineAI" }],
-  creator: "CineAI",
+    "Personalized movie picks with AI taste matching, streaming-aware recommendations, and Watch Together nights.",
+  keywords: ["movies", "AI recommendations", "film discovery", "movie ratings", "watchlist", "Frameo"],
+  authors: [{ name: "Frameo" }],
+  creator: "Frameo",
   openGraph: {
     type: "website",
     locale: "en_US",
     url: process.env.NEXT_PUBLIC_APP_URL,
-    siteName: "CineAI",
-    title: "CineAI — AI-Powered Movie Recommendations",
+    siteName: "Frameo",
+    title: "Frameo — Decide what to watch next",
     description:
-      "Discover your next favorite movie with AI-powered recommendations tailored to your taste.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "CineAI" }],
+      "Personalized movie picks with AI taste matching — tonight's frame, not tomorrow's list.",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Frameo" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "CineAI — AI-Powered Movie Recommendations",
-    description: "Discover your next favorite movie with AI-powered recommendations.",
+    title: "Frameo — Decide what to watch next",
+    description: "Personalized movie picks with AI taste matching.",
     images: ["/og-image.png"],
   },
   icons: {
-    icon: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
+    icon: [{ url: "/frameo.webp", type: "image/webp" }],
+    apple: [{ url: "/frameo.webp", type: "image/webp" }],
   },
 }
 
@@ -62,9 +63,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn(manrope.variable, cormorantGaramond.variable, jetBrainsMono.variable)}
+      className={cn(outfit.variable, spaceGrotesk.variable, jetBrainsMono.variable)}
     >
-      <body className="bg-[#080808] font-sans antialiased">
+      <body className="bg-[var(--color-ink)] font-sans antialiased">
         <AppProviders>{children}</AppProviders>
       </body>
     </html>
