@@ -1,11 +1,20 @@
 import { TRPCError } from "@trpc/server"
+import { and, count, desc, gte, lte, sql } from "drizzle-orm"
 import { z } from "zod"
 
+import { db } from "@/lib/db"
 import { redis } from "@/lib/db/redis"
+import { ratings } from "@/lib/db/schema"
 import { getMovieExternalRatings } from "@/lib/omdb/getMovieExternalRatings"
 import { getTrailerKey } from "@/lib/tmdb/helpers"
 import { tmdb } from "@/lib/tmdb/client"
-import type { TMDBGenre, TMDBMovie, TMDBMovieDetail, TMDBResponse } from "@/lib/tmdb/types"
+import type {
+	TMDBGenre,
+	TMDBMovie,
+	TMDBMovieDetail,
+	TMDBPerson,
+	TMDBResponse,
+} from "@/lib/tmdb/types"
 import { publicProcedure, router } from "@/server/trpc"
 
 async function getCachedOrFetch<T>(key: string, ttlSeconds: number, fetcher: () => Promise<T>) {
@@ -26,6 +35,51 @@ function throwTMDBError(cause: unknown, message: string): never {
 		message,
 		cause: cause instanceof Error ? cause : undefined,
 	})
+}
+
+function formatDate(date: Date) {
+	return date.toISOString().slice(0, 10)
+}
+
+function getChartPeriodMeta(period: "month" | "year") {
+	const now = new Date()
+	const year = now.getUTCFullYear()
+	const month = now.getUTCMonth()
+
+	if (period === "month") {
+		const start = new Date(Date.UTC(year, month, 1))
+		const end = new Date(Date.UTC(year, month + 1, 0))
+		const cacheSuffix = `${year}-${String(month + 1).padStart(2, "0")}`
+		return {
+			start,
+			end: end > now ? now : end,
+			releaseGte: formatDate(start),
+			releaseLte: formatDate(end),
+			voteCountGte: 50,
+			cacheSuffix,
+		}
+	}
+
+	const start = new Date(Date.UTC(year, 0, 1))
+	return {
+		start,
+		end: now,
+		releaseGte: formatDate(start),
+		releaseLte: formatDate(now),
+		voteCountGte: 100,
+		cacheSuffix: String(year),
+	}
+}
+
+function filterPeople(people: TMDBPerson[]) {
+	return people
+		.filter((person) => {
+			if (!person.known_for?.length) return true
+			return person.known_for.some(
+				(item) => item.media_type === "movie" || Boolean(item.title),
+			)
+		})
+		.slice(0, 10)
 }
 
 export const moviesRouter = router({
@@ -58,6 +112,82 @@ export const moviesRouter = router({
 			} catch (error) {
 				throwTMDBError(error, "Failed to fetch popular movies")
 			}
+		}),
+
+	getCharts: publicProcedure
+		.input(
+			z.object({
+				period: z.enum(["month", "year"]).default("month"),
+				category: z.enum(["movies", "actors"]).default("movies"),
+			}),
+		)
+		.query(async ({ input }) => {
+			const meta = getChartPeriodMeta(input.period)
+			const cacheKey = `tmdb:charts:${input.period}:${input.category}:${meta.cacheSuffix}`
+
+			try {
+				if (input.category === "movies") {
+					const movies = await getCachedOrFetch<TMDBMovie[]>(cacheKey, 3600, async () => {
+						const response = await tmdb.discoverMovies({
+							sortBy: "popularity.desc",
+							primaryReleaseDateGte: meta.releaseGte,
+							primaryReleaseDateLte: meta.releaseLte,
+							voteCountGte: meta.voteCountGte,
+						})
+						return (response.results ?? []).slice(0, 10)
+					})
+
+					return { category: "movies" as const, movies }
+				}
+
+				const actors = await getCachedOrFetch<TMDBPerson[]>(cacheKey, 3600, async () => {
+					const response =
+						input.period === "month"
+							? await tmdb.getTrendingPeople("week")
+							: await tmdb.getPopularPeople(1)
+					return filterPeople(response.results ?? [])
+				})
+
+				return { category: "actors" as const, actors }
+			} catch (error) {
+				throwTMDBError(error, "Failed to fetch charts")
+			}
+		}),
+
+	getCommunityTop: publicProcedure
+		.input(
+			z.object({
+				period: z.enum(["month", "year"]).default("month"),
+			}),
+		)
+		.query(async ({ input }) => {
+			const meta = getChartPeriodMeta(input.period)
+			const cacheKey = `frameo:community-top:${input.period}:${meta.cacheSuffix}`
+
+			return getCachedOrFetch(cacheKey, 600, async () => {
+				const rows = await db
+					.select({
+						movieId: ratings.movieId,
+						title: sql<string>`max(${ratings.title})`.mapWith(String),
+						poster: sql<string | null>`max(${ratings.poster})`,
+						ratingCount: count(),
+						avgRating: sql<number>`avg(${ratings.rating})::float`.mapWith(Number),
+					})
+					.from(ratings)
+					.where(and(gte(ratings.createdAt, meta.start), lte(ratings.createdAt, meta.end)))
+					.groupBy(ratings.movieId)
+					.having(sql`count(*) >= 2`)
+					.orderBy(desc(count()), desc(sql`avg(${ratings.rating})`))
+					.limit(10)
+
+				return rows.map((row) => ({
+					movieId: row.movieId,
+					title: row.title,
+					poster: row.poster,
+					ratingCount: Number(row.ratingCount),
+					avgRating: Number(row.avgRating),
+				}))
+			})
 		}),
 
 	search: publicProcedure

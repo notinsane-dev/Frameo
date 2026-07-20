@@ -12,6 +12,7 @@ const linkGroups = [
 		links: [
 			{ label: "Home", href: "/" },
 			{ label: "Explore", href: "/explore" },
+			{ label: "Charts", href: "/top-10" },
 			{ label: "Recommendations", href: "/recommendations" },
 			{ label: "Watchlist", href: "/watchlist" },
 		],

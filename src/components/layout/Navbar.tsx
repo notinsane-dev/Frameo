@@ -32,6 +32,7 @@ const springNav = { type: "spring" as const, stiffness: 420, damping: 36, mass: 
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "Explore", href: "/explore" },
+  { label: "Charts", href: "/top-10" },
   { label: "Recommendations", href: "/recommendations" },
   { label: "Together", href: "/watch-together" },
   { label: "Twins", href: "/taste-twins" },

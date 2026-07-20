@@ -65,3 +65,20 @@ export interface TMDBMovieDetail extends TMDBMovie {
   credits: TMDBCredits
   similar: TMDBResponse<TMDBMovie>
 }
+
+export interface TMDBPersonKnownFor {
+  id: number
+  title?: string
+  name?: string
+  media_type?: string
+  poster_path?: string | null
+}
+
+export interface TMDBPerson {
+  id: number
+  name: string
+  profile_path: string | null
+  popularity: number
+  known_for_department?: string
+  known_for?: TMDBPersonKnownFor[]
+}

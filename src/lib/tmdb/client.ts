@@ -1,6 +1,13 @@
 import axios from "axios"
 
-import type { TMDBGenre, TMDBMovie, TMDBMovieDetail, TMDBResponse, TMDBVideo } from "@/lib/tmdb/types"
+import type {
+  TMDBGenre,
+  TMDBMovie,
+  TMDBMovieDetail,
+  TMDBPerson,
+  TMDBResponse,
+  TMDBVideo,
+} from "@/lib/tmdb/types"
 
 const TMDB_BASE_URL = process.env.TMDB_BASE_URL || "https://api.themoviedb.org/3"
 const TMDB_API_KEY = process.env.TMDB_API_KEY
@@ -60,6 +67,30 @@ export const tmdb = {
       with_genres: genreId,
       page,
     })
+  },
+
+  discoverMovies(params: {
+    page?: number
+    sortBy?: string
+    primaryReleaseDateGte?: string
+    primaryReleaseDateLte?: string
+    voteCountGte?: number
+  }) {
+    return tmdb.get<TMDBResponse<TMDBMovie>>("/discover/movie", {
+      page: params.page ?? 1,
+      sort_by: params.sortBy ?? "popularity.desc",
+      "primary_release_date.gte": params.primaryReleaseDateGte,
+      "primary_release_date.lte": params.primaryReleaseDateLte,
+      "vote_count.gte": params.voteCountGte,
+    })
+  },
+
+  getTrendingPeople(timeWindow: "day" | "week" = "week") {
+    return tmdb.get<TMDBResponse<TMDBPerson>>(`/trending/person/${timeWindow}`)
+  },
+
+  getPopularPeople(page = 1) {
+    return tmdb.get<TMDBResponse<TMDBPerson>>("/person/popular", { page })
   },
 
   getWatchProviders(region = "US") {
