@@ -2,7 +2,10 @@
 
 AI-powered movie recommendations — decide what to watch next with taste matching, social reviews, and charts.
 
+**Frameo is a free, public open-source project.** Anyone can use, copy, modify, and build on it under the [MIT License](LICENSE) — no paid license required.
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Open Source](https://img.shields.io/badge/open%20source-welcome-brightgreen.svg)](LICENSE)
 
 ## Tech stack
 
@@ -67,8 +70,14 @@ Personalized picks use **pgvector** cosine similarity over movie + user taste em
 
 See [SECURITY.md](SECURITY.md) for how to report vulnerabilities. Never commit `.env.local` or real API keys.
 
+## Contributing
+
+Issues, ideas, and pull requests are welcome. Fork the repo, make your changes, and open a PR.
+
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — free for everyone. See [LICENSE](LICENSE).
+
+You may use Frameo for personal or commercial projects, modify it, and redistribute it, as long as you include the copyright and license notice.
 
 Movie data courtesy of [TMDB](https://www.themoviedb.org/). This product uses the TMDB API but is not endorsed or certified by TMDB.
