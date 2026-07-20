@@ -9,6 +9,9 @@ const handler = (req: Request) =>
     req,
     router: appRouter,
     createContext: () => createContext({ req }),
+    onError({ path, error }) {
+      console.error(`[tRPC] ${path ?? "unknown"}:`, error.message, error.cause ?? "")
+    },
   })
 
 export { handler as GET, handler as POST }
