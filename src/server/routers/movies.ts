@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server"
 import { z } from "zod"
 
 import { redis } from "@/lib/db/redis"
+import { getMovieExternalRatings } from "@/lib/omdb/getMovieExternalRatings"
 import { getTrailerKey } from "@/lib/tmdb/helpers"
 import { tmdb } from "@/lib/tmdb/client"
 import type { TMDBGenre, TMDBMovie, TMDBMovieDetail, TMDBResponse } from "@/lib/tmdb/types"
@@ -120,6 +121,14 @@ export const moviesRouter = router({
 				throwTMDBError(error, "Failed to fetch movie details")
 			}
 		}),
+
+	getExternalRatings: publicProcedure
+		.input(
+			z.object({
+				id: z.number().int().positive(),
+			}),
+		)
+		.query(async ({ input }) => getMovieExternalRatings(input.id)),
 
 	getTrailer: publicProcedure
 		.input(
