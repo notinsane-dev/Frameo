@@ -14,6 +14,7 @@ type RateMovieInput = {
   poster: string
   rating: number
   review?: string
+  quotedRatingId?: number
 }
 
 export function useRatings() {
@@ -29,7 +30,12 @@ export function useRatings() {
   const rateMutation = trpc.user.rateMovie.useMutation({
     onSuccess: async () => {
       showToast("Rating saved!", "success")
-      await utils.user.getRatings.invalidate()
+      await Promise.all([
+        utils.user.getRatings.invalidate(),
+        utils.reviews.listForMovie.invalidate(),
+        utils.reviews.listForAuthor.invalidate(),
+        utils.reviews.getPopularWeek.invalidate(),
+      ])
     },
     onError: () => {
       showToast("Failed to save rating", "error")
