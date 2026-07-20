@@ -5,6 +5,7 @@ import { TrendingSection } from "@/components/home/TrendingSection"
 import { GenreShowcase } from "@/components/home/GenreShowcase"
 import { FeaturedSection } from "@/components/home/FeaturedSection"
 import { AIPromoBanner } from "@/components/home/AIPromoBanner"
+import { PopularReviewsSection } from "@/components/home/PopularReviewsSection"
 
 export default async function HomePage() {
   const [trendingResult, popularResult, topRatedResult, genresResult] = await Promise.allSettled([
@@ -23,7 +24,7 @@ export default async function HomePage() {
 
   const aggregatedMovies = [...trendingMovies, ...popularMovies, ...topRatedMovies]
   const uniqueMovies = aggregatedMovies.filter(
-    (movie, index, all) => all.findIndex((item) => item.id === movie.id) === index
+    (movie, index, all) => all.findIndex((item) => item.id === movie.id) === index,
   )
   const moviesWithPosters = uniqueMovies.filter((movie) => Boolean(movie.poster_path))
   const moviesWithBackdrops = uniqueMovies.filter((movie) => Boolean(movie.backdrop_path))
@@ -56,35 +57,23 @@ export default async function HomePage() {
         : FALLBACK_MOVIES.slice(0, 4)
 
   return (
-    <div className="bg-[#080808]">
-      {/* Hero Section */}
+    <div className="bg-[var(--color-ink)]">
       <HeroSection movies={heroMovies} />
-
       <main>
-        {/* Trending Section */}
         <TrendingSection movies={trendingList} />
-
-        {/* Popular Section */}
+        <PopularReviewsSection />
         <FeaturedSection
-          title="Popular Right Now"
-          subtitle="What everyone's watching"
+          title="Popular right now"
+          subtitle="What people are locking in tonight"
           movies={popularList}
         />
-
-        {/* Genre Showcase */}
         <GenreShowcase genres={genreList} />
-
-        {/* Top Rated Section */}
         <FeaturedSection
-          title="Critically Acclaimed"
-          subtitle="Top rated of all time"
+          title="Critically locked"
+          subtitle="Top-rated frames worth your time"
           movies={topRatedList}
         />
-
-        {/* AI Promo Banner */}
-        <div className="px-6 py-20 md:px-12">
-          <AIPromoBanner movies={promoMovies} />
-        </div>
+        <AIPromoBanner movies={promoMovies} />
       </main>
     </div>
   )
