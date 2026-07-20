@@ -49,7 +49,7 @@ export function WatchlistButton({ movie, variant = "icon" }: WatchlistButtonProp
         whileTap={tapScale}
       >
         {isLoading ? (
-          <Loader2 className="h-5 w-5 animate-spin text-[#C9A84C]" />
+          <Loader2 className="h-5 w-5 animate-spin text-[var(--color-signal)]" />
         ) : (
           <AnimatePresence mode="wait">
             {inWatchlist ? (
@@ -61,7 +61,7 @@ export function WatchlistButton({ movie, variant = "icon" }: WatchlistButtonProp
                 exit="hidden"
                 transition={{ type: "spring", damping: 12, stiffness: 200 }}
               >
-                <BookmarkCheck className="h-5 w-5 text-[#C9A84C]" />
+                <BookmarkCheck className="h-5 w-5 text-[var(--color-signal)]" />
               </motion.div>
             ) : (
               <motion.div
@@ -72,7 +72,7 @@ export function WatchlistButton({ movie, variant = "icon" }: WatchlistButtonProp
                 exit="hidden"
                 transition={{ type: "spring", damping: 12, stiffness: 200 }}
               >
-                <Bookmark className="h-5 w-5 text-white/60 transition-colors hover:text-white" />
+                <Bookmark className="h-5 w-5 text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text)]" />
               </motion.div>
             )}
           </AnimatePresence>
@@ -85,10 +85,10 @@ export function WatchlistButton({ movie, variant = "icon" }: WatchlistButtonProp
     <motion.button
       onClick={handleClick}
       disabled={isLoading}
-      className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 font-dm-sans font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
+      className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50 ${
         inWatchlist
-          ? "border border-[#C9A84C] text-[#C9A84C] hover:bg-[#C9A84C]/10"
-          : "border border-white/10 bg-white/5 text-white hover:border-white/20 hover:bg-white/10"
+          ? "border border-[var(--color-signal)] text-[var(--color-signal)] hover:bg-[var(--color-signal-muted)]"
+          : "border border-[var(--color-border)] bg-[var(--color-bg-card)] text-[var(--color-text)] hover:border-[var(--color-signal-border)]"
       }`}
       whileHover={hoverScale}
       whileTap={tapScale}
