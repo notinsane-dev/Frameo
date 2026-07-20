@@ -1,311 +1,302 @@
 import type { Metadata } from "next"
-import Link from "next/link"
+
+import {
+	LegalDocument,
+	LegalList,
+	LegalListItem,
+	LegalSection,
+	LegalSubheading,
+} from "@/components/legal/LegalDocument"
+import { siteConfig } from "@/config/site"
 
 export const metadata: Metadata = {
-  title: "Privacy Policy",
-  description: "CineAI Privacy Policy - How we collect and use your data",
+	title: "Privacy Policy",
+	description: `${siteConfig.name} Privacy Policy — how we collect and use your data`,
 }
 
+const toc = [
+	{ id: "introduction", label: "Introduction" },
+	{ id: "collection", label: "Collection" },
+	{ id: "use", label: "Use of data" },
+	{ id: "providers", label: "Providers" },
+	{ id: "retention", label: "Retention" },
+	{ id: "security", label: "Security" },
+	{ id: "rights", label: "Your rights" },
+	{ id: "cookies", label: "Cookies" },
+	{ id: "ccpa", label: "CCPA" },
+	{ id: "gdpr", label: "GDPR" },
+	{ id: "children", label: "Children" },
+	{ id: "links", label: "Third-party links" },
+	{ id: "changes", label: "Changes" },
+	{ id: "contact", label: "Contact" },
+]
+
 export default function PrivacyPage() {
-  return (
-    <div className="min-h-screen bg-black text-white py-16 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-5xl font-bold font-playfair mb-4 text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">
-            Privacy Policy
-          </h1>
-          <p className="text-gray-400 text-lg">
-            Last updated: April 18, 2026
-          </p>
-        </div>
+	return (
+		<LegalDocument
+			title="Privacy Policy"
+			description={`How ${siteConfig.name} collects, uses, and protects your information when you rate films, build watchlists, and get recommendations.`}
+			updated="April 18, 2026"
+			toc={toc}
+			related={{ href: "/terms", label: "Terms of Service" }}
+		>
+			<LegalSection id="introduction" title="1. Introduction">
+				<p>
+					{siteConfig.name} (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) operates the{" "}
+					{siteConfig.name} website and application. This page explains our policies on the
+					collection, use, and disclosure of personal data when you use the Service, and the
+					choices you have associated with that data.
+				</p>
+			</LegalSection>
 
-        {/* Content */}
-        <div className="space-y-8 text-gray-300 leading-relaxed">
-          {/* Section 1 */}
-          <section>
-            <h2 className="text-2xl font-bold font-playfair text-yellow-400 mb-4">
-              1. Introduction
-            </h2>
-            <p>
-              CineAI (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) operates the CineAI website and application. This page
-              informs you of our policies regarding the collection, use, and disclosure of personal data
-              when you use our Service and the choices you have associated with that data.
-            </p>
-          </section>
+			<LegalSection id="collection" title="2. Information Collection and Use">
+				<p>
+					We collect several types of information to provide and improve the Service.
+				</p>
 
-          {/* Section 2 */}
-          <section>
-            <h2 className="text-2xl font-bold font-playfair text-yellow-400 mb-4">
-              2. Information Collection and Use
-            </h2>
-            <p className="mb-4">We collect several different types of information for various purposes to provide and improve our Service to you.</p>
-            
-            <h3 className="text-xl font-semibold text-yellow-300 mb-3">Types of Data Collected:</h3>
-            
-            <div className="ml-4 space-y-4">
-              <div>
-                <h4 className="font-semibold text-white mb-2">Personal Data:</h4>
-                <ul className="list-disc list-inside space-y-1">
-                  <li>Email address (when you create an account)</li>
-                  <li>Name (when provided during authentication)</li>
-                  <li>Profile picture (when linked to social authentication)</li>
-                  <li>Movie ratings and watchlist data</li>
-                  <li>User preferences and viewing history</li>
-                </ul>
-              </div>
+				<LegalSubheading>Personal data</LegalSubheading>
+				<LegalList>
+					<LegalListItem>Email address (when you create an account)</LegalListItem>
+					<LegalListItem>Name (when provided during authentication)</LegalListItem>
+					<LegalListItem>
+						Profile picture (when linked to social authentication)
+					</LegalListItem>
+					<LegalListItem>Movie ratings and watchlist data</LegalListItem>
+					<LegalListItem>User preferences and viewing history</LegalListItem>
+				</LegalList>
 
-              <div>
-                <h4 className="font-semibold text-white mb-2">Usage Data:</h4>
-                <ul className="list-disc list-inside space-y-1">
-                  <li>Pages visited and time spent</li>
-                  <li>Search queries and recommendations viewed</li>
-                  <li>Device type and operating system</li>
-                  <li>Browser type and version</li>
-                  <li>IP address</li>
-                  <li>Referring URL and exit pages</li>
-                  <li>Click patterns and interactions</li>
-                </ul>
-              </div>
+				<LegalSubheading>Usage data</LegalSubheading>
+				<LegalList>
+					<LegalListItem>Pages visited and time spent</LegalListItem>
+					<LegalListItem>Search queries and recommendations viewed</LegalListItem>
+					<LegalListItem>Device type and operating system</LegalListItem>
+					<LegalListItem>Browser type and version</LegalListItem>
+					<LegalListItem>IP address</LegalListItem>
+					<LegalListItem>Referring URL and exit pages</LegalListItem>
+					<LegalListItem>Click patterns and interactions</LegalListItem>
+				</LegalList>
 
-              <div>
-                <h4 className="font-semibold text-white mb-2">Cookies and Tracking Technologies:</h4>
-                <p>
-                  We use cookies, web beacons, and similar technologies to track your activity on our Service
-                  and store certain information. This helps us improve your experience and provide personalized
-                  recommendations.
-                </p>
-              </div>
+				<LegalSubheading>Cookies and tracking</LegalSubheading>
+				<p>
+					We use cookies, web beacons, and similar technologies to track activity on the
+					Service and store certain information. This helps us improve your experience and
+					provide personalized recommendations.
+				</p>
 
-              <div>
-                <h4 className="font-semibold text-white mb-2">Authentication Data:</h4>
-                <p>
-                  When you sign in with Google, we receive certain information from Google&apos;s authentication
-                  service, including your name, email address, and profile picture (if applicable).
-                </p>
-              </div>
-            </div>
-          </section>
+				<LegalSubheading>Authentication data</LegalSubheading>
+				<p>
+					When you sign in with Google, we receive certain information from Google&apos;s
+					authentication service, including your name, email address, and profile picture
+					(if applicable).
+				</p>
+			</LegalSection>
 
-          {/* Section 3 */}
-          <section>
-            <h2 className="text-2xl font-bold font-playfair text-yellow-400 mb-4">
-              3. Use of Data
-            </h2>
-            <p className="mb-4">CineAI uses the collected data for various purposes:</p>
-            <ul className="list-disc list-inside space-y-2 ml-4">
-              <li>To provide and maintain our Service</li>
-              <li>To notify you about changes to our Service</li>
-              <li>To allow you to participate in interactive features of our Service</li>
-              <li>To provide customer support</li>
-              <li>To gather analysis or valuable information so we can improve our Service</li>
-              <li>To monitor the usage of our Service</li>
-              <li>To detect, prevent and address technical issues and fraudulent activity</li>
-              <li>To provide you with personalized movie recommendations</li>
-              <li>To improve AI recommendation algorithms</li>
-            </ul>
-          </section>
+			<LegalSection id="use" title="3. Use of Data">
+				<p>{siteConfig.name} uses collected data to:</p>
+				<LegalList>
+					<LegalListItem>Provide and maintain the Service</LegalListItem>
+					<LegalListItem>Notify you about changes to the Service</LegalListItem>
+					<LegalListItem>
+						Allow participation in interactive features of the Service
+					</LegalListItem>
+					<LegalListItem>Provide customer support</LegalListItem>
+					<LegalListItem>Analyze usage so we can improve the Service</LegalListItem>
+					<LegalListItem>Monitor usage of the Service</LegalListItem>
+					<LegalListItem>
+						Detect, prevent, and address technical issues and fraudulent activity
+					</LegalListItem>
+					<LegalListItem>Provide personalized movie recommendations</LegalListItem>
+					<LegalListItem>Improve AI recommendation systems</LegalListItem>
+				</LegalList>
+			</LegalSection>
 
-          {/* Section 4 */}
-          <section>
-            <h2 className="text-2xl font-bold font-playfair text-yellow-400 mb-4">
-              4. Third-Party Service Providers
-            </h2>
-            <p className="mb-4">
-              We may employ third-party companies and individuals to facilitate our Service, to provide the
-              Service on our behalf, to perform Service-related services, or to assist us in analyzing how
-              our Service is used. These third parties have access to your personal data only to perform
-              these tasks on our behalf and are obligated not to disclose or use it for any other purpose.
-            </p>
+			<LegalSection id="providers" title="4. Third-Party Service Providers">
+				<p>
+					We may employ third-party companies and individuals to facilitate the Service,
+					provide it on our behalf, perform Service-related tasks, or help analyze usage.
+					These parties have access to personal data only to perform those tasks and are
+					obligated not to disclose or use it for any other purpose.
+				</p>
 
-            <h3 className="text-xl font-semibold text-yellow-300 mb-3">Third-Party Services We Use:</h3>
-            <ul className="list-disc list-inside space-y-2 ml-4">
-              <li><strong>Google Authentication:</strong> For user authentication and sign-in</li>
-              <li><strong>TMDB (The Movie Database):</strong> For movie data, images, and information</li>
-              <li><strong>Google Gemini API:</strong> For generating personalized recommendations</li>
-              <li><strong>Vercel:</strong> For hosting and infrastructure</li>
-              <li><strong>Sentry:</strong> For error tracking and monitoring</li>
-            </ul>
+				<LegalSubheading>Services we use</LegalSubheading>
+				<LegalList>
+					<LegalListItem>
+						<strong className="text-[var(--color-text)]">Google Authentication</strong> —
+						sign-in
+					</LegalListItem>
+					<LegalListItem>
+						<strong className="text-[var(--color-text)]">TMDB</strong> — movie data and
+						imagery
+					</LegalListItem>
+					<LegalListItem>
+						<strong className="text-[var(--color-text)]">Google Gemini</strong> —
+						personalized recommendations
+					</LegalListItem>
+					<LegalListItem>
+						<strong className="text-[var(--color-text)]">Hosting providers</strong> —
+						infrastructure
+					</LegalListItem>
+					<LegalListItem>
+						<strong className="text-[var(--color-text)]">Sentry</strong> — error tracking
+					</LegalListItem>
+				</LegalList>
+				<p>
+					Please review the privacy policies of these third-party services to understand how
+					they handle your data.
+				</p>
+			</LegalSection>
 
-            <p className="mt-4 text-sm">
-              Please review the privacy policies of these third-party services to understand how they handle
-              your data.
-            </p>
-          </section>
+			<LegalSection id="retention" title="5. Data Retention">
+				<p>
+					{siteConfig.name} retains personal data only as long as necessary to provide the
+					Service and as required by law.
+				</p>
+				<LegalList>
+					<LegalListItem>
+						Account data is retained for as long as your account exists
+					</LegalListItem>
+					<LegalListItem>
+						Ratings and watchlist data are retained until you delete them or your account
+					</LegalListItem>
+					<LegalListItem>Usage analytics may be retained for up to 12 months</LegalListItem>
+					<LegalListItem>
+						You can request deletion of your personal data at any time
+					</LegalListItem>
+				</LegalList>
+			</LegalSection>
 
-          {/* Section 5 */}
-          <section>
-            <h2 className="text-2xl font-bold font-playfair text-yellow-400 mb-4">
-              5. Data Retention
-            </h2>
-            <p className="mb-4">
-              CineAI will retain your personal data only for as long as necessary to provide our Service
-              and as required by law. 
-            </p>
-            <p>
-              Specifically:
-            </p>
-            <ul className="list-disc list-inside space-y-2 ml-4 mt-2">
-              <li>Account data is retained for as long as your account exists</li>
-              <li>Ratings and watchlist data is retained until you delete them or your account</li>
-              <li>Usage analytics may be retained for up to 12 months</li>
-              <li>You can request deletion of your personal data at any time</li>
-            </ul>
-          </section>
+			<LegalSection id="security" title="6. Data Security">
+				<p>
+					The security of your data matters to us, but no method of transmission over the
+					Internet or electronic storage is 100% secure. While we strive to use commercially
+					acceptable means to protect personal data, we cannot guarantee absolute security.
+				</p>
+			</LegalSection>
 
-          {/* Section 6 */}
-          <section>
-            <h2 className="text-2xl font-bold font-playfair text-yellow-400 mb-4">
-              6. Data Security
-            </h2>
-            <p>
-              The security of your data is important to us but remember that no method of transmission over
-              the Internet or method of electronic storage is 100% secure. While we strive to use commercially
-              acceptable means to protect your personal data, we cannot guarantee its absolute security.
-            </p>
-          </section>
+			<LegalSection id="rights" title="7. Your Rights">
+				<p>You have the following rights regarding your personal data:</p>
+				<LegalList>
+					<LegalListItem>
+						<strong className="text-[var(--color-text)]">Access</strong> — request a copy
+						of personal data we hold about you
+					</LegalListItem>
+					<LegalListItem>
+						<strong className="text-[var(--color-text)]">Correction</strong> — correct
+						inaccurate personal data
+					</LegalListItem>
+					<LegalListItem>
+						<strong className="text-[var(--color-text)]">Deletion</strong> — request
+						deletion of your personal data
+					</LegalListItem>
+					<LegalListItem>
+						<strong className="text-[var(--color-text)]">Restrict processing</strong> —
+						limit how we use your data
+					</LegalListItem>
+					<LegalListItem>
+						<strong className="text-[var(--color-text)]">Portability</strong> — request
+						your data in a portable format
+					</LegalListItem>
+					<LegalListItem>
+						<strong className="text-[var(--color-text)]">Object</strong> — object to
+						certain processing of your data
+					</LegalListItem>
+				</LegalList>
+				<p>
+					To exercise any of these rights, contact us using the details in the Contact
+					section below.
+				</p>
+			</LegalSection>
 
-          {/* Section 7 */}
-          <section>
-            <h2 className="text-2xl font-bold font-playfair text-yellow-400 mb-4">
-              7. Your Rights
-            </h2>
-            <p className="mb-4">You have the following rights regarding your personal data:</p>
-            <ul className="list-disc list-inside space-y-2 ml-4">
-              <li><strong>Right to Access:</strong> You can request a copy of all personal data we hold about you</li>
-              <li><strong>Right to Correction:</strong> You can correct inaccurate personal data</li>
-              <li><strong>Right to Deletion:</strong> You can request deletion of your personal data</li>
-              <li><strong>Right to Restrict Processing:</strong> You can restrict how we use your data</li>
-              <li><strong>Right to Data Portability:</strong> You can request your data in a portable format</li>
-              <li><strong>Right to Object:</strong> You can object to certain processing of your data</li>
-            </ul>
+			<LegalSection id="cookies" title="8. Cookies">
+				<p>
+					{siteConfig.name} uses cookies to enhance your experience. Cookies are small data
+					files that may include an anonymous unique identifier.
+				</p>
+				<p>
+					You can accept or refuse cookies and learn when a cookie is sent to your device.
+					Refusing cookies may limit some parts of the Service.
+				</p>
 
-            <p className="mt-4">
-              To exercise any of these rights, please contact us using the contact information provided below.
-            </p>
-          </section>
+				<LegalSubheading>Types of cookies we use</LegalSubheading>
+				<LegalList>
+					<LegalListItem>
+						<strong className="text-[var(--color-text)]">Session</strong> — authentication
+						and navigation
+					</LegalListItem>
+					<LegalListItem>
+						<strong className="text-[var(--color-text)]">Preference</strong> — remember
+						your settings
+					</LegalListItem>
+					<LegalListItem>
+						<strong className="text-[var(--color-text)]">Analytics</strong> — understand
+						how you use the Service
+					</LegalListItem>
+					<LegalListItem>
+						<strong className="text-[var(--color-text)]">Security</strong> — protect
+						against fraud and unauthorized access
+					</LegalListItem>
+				</LegalList>
+			</LegalSection>
 
-          {/* Section 8 */}
-          <section>
-            <h2 className="text-2xl font-bold font-playfair text-yellow-400 mb-4">
-              8. Cookies
-            </h2>
-            <p className="mb-4">
-              CineAI uses cookies to enhance your experience. Cookies are files with a small amount of data
-              which may include an anonymous unique identifier.
-            </p>
-            <p className="mb-4">
-              You have the option to either accept or refuse these cookies and know when a cookie is being
-              sent to your device. If you choose to refuse our cookies, you may not be able to use some
-              portions of this Service.
-            </p>
+			<LegalSection id="ccpa" title="9. CCPA (California Residents)">
+				<p>
+					If you are a California resident, you have rights under the California Consumer
+					Privacy Act (CCPA), including:
+				</p>
+				<LegalList>
+					<LegalListItem>
+						The right to know what personal information is collected, used, shared, or sold
+					</LegalListItem>
+					<LegalListItem>
+						The right to delete personal information collected from you
+					</LegalListItem>
+					<LegalListItem>
+						The right to opt out of the sale or sharing of your personal information
+					</LegalListItem>
+					<LegalListItem>
+						The right to non-discrimination for exercising your CCPA rights
+					</LegalListItem>
+				</LegalList>
+			</LegalSection>
 
-            <h3 className="text-xl font-semibold text-yellow-300 mb-3">Types of Cookies We Use:</h3>
-            <ul className="list-disc list-inside space-y-2 ml-4">
-              <li><strong>Session Cookies:</strong> For authentication and navigation</li>
-              <li><strong>Preference Cookies:</strong> To remember your settings</li>
-              <li><strong>Analytics Cookies:</strong> To understand how you use our Service</li>
-              <li><strong>Security Cookies:</strong> To protect against fraud and unauthorized access</li>
-            </ul>
-          </section>
+			<LegalSection id="gdpr" title="10. GDPR (European Residents)">
+				<p>
+					If you are in the European Economic Area (EEA), you have data protection rights
+					under the General Data Protection Regulation (GDPR). For more information about
+					your rights and how to exercise them, contact us using the details below.
+				</p>
+			</LegalSection>
 
-          {/* Section 9 */}
-          <section>
-            <h2 className="text-2xl font-bold font-playfair text-yellow-400 mb-4">
-              9. CCPA Privacy Rights (California Residents)
-            </h2>
-            <p className="mb-4">
-              If you are a California resident, you have the following rights under the California Consumer
-              Privacy Act (CCPA):
-            </p>
-            <ul className="list-disc list-inside space-y-2 ml-4">
-              <li>The right to know what personal information is collected, used, shared or sold</li>
-              <li>The right to delete personal information collected from you</li>
-              <li>The right to opt-out of the sale or sharing of your personal information</li>
-              <li>The right to non-discrimination for exercising your CCPA rights</li>
-            </ul>
-          </section>
+			<LegalSection id="children" title="11. Children's Privacy">
+				<p>
+					{siteConfig.name} does not knowingly collect personal data from children under 13.
+					If we become aware that a child under 13 has provided personal data, we will take
+					steps to delete it and terminate the account. If you are a parent or guardian and
+					believe your child has provided personal data, contact us immediately.
+				</p>
+			</LegalSection>
 
-          {/* Section 10 */}
-          <section>
-            <h2 className="text-2xl font-bold font-playfair text-yellow-400 mb-4">
-              10. GDPR Privacy Rights (European Residents)
-            </h2>
-            <p>
-              If you are located in the European Economic Area (EEA), you have data protection rights under
-              the General Data Protection Regulation (GDPR). For more information about your GDPR rights and
-              how to exercise them, please contact us using the information below.
-            </p>
-          </section>
+			<LegalSection id="links" title="12. Third-Party Links">
+				<p>
+					The Service may contain links to websites we do not operate. This Privacy Policy
+					applies only to our Service. We are not responsible for third-party privacy
+					practices. Review their policies before providing personal information.
+				</p>
+			</LegalSection>
 
-          {/* Section 11 */}
-          <section>
-            <h2 className="text-2xl font-bold font-playfair text-yellow-400 mb-4">
-              11. Children&apos;s Privacy
-            </h2>
-            <p>
-              CineAI does not knowingly collect personal data from children under the age of 13. If we become
-              aware that a child under 13 has provided us with personal data, we will take steps to delete such
-              information and terminate the child&apos;s account. If you are a parent or guardian and believe your
-              child has provided us with personal data, please contact us immediately.
-            </p>
-          </section>
+			<LegalSection id="changes" title="13. Changes to This Policy">
+				<p>
+					We may update this Privacy Policy from time to time. We will post the new policy
+					on this page and update the &quot;Last updated&quot; date at the top.
+				</p>
+			</LegalSection>
 
-          {/* Section 12 */}
-          <section>
-            <h2 className="text-2xl font-bold font-playfair text-yellow-400 mb-4">
-              12. Third-Party Links
-            </h2>
-            <p>
-              Our Service may contain links to other websites that are not operated by us. This Privacy Policy
-              applies only to our Service. We are not responsible for the privacy practices of third-party websites.
-              We encourage you to review the privacy policies of any third-party websites before providing your
-              personal information.
-            </p>
-          </section>
-
-          {/* Section 13 */}
-          <section>
-            <h2 className="text-2xl font-bold font-playfair text-yellow-400 mb-4">
-              13. Changes to This Privacy Policy
-            </h2>
-            <p>
-              We may update our Privacy Policy from time to time. We will notify you of any changes by posting
-              the new Privacy Policy on this page and updating the &quot;Last updated&quot; date at the top of this
-              Privacy Policy.
-            </p>
-          </section>
-
-          {/* Section 14 */}
-          <section>
-            <h2 className="text-2xl font-bold font-playfair text-yellow-400 mb-4">
-              14. Contact Us
-            </h2>
-            <p className="mb-4">
-              If you have any questions about this Privacy Policy, please contact us at:
-            </p>
-            <p className="text-yellow-400">
-              privacy@cineai.app
-            </p>
-          </section>
-        </div>
-
-        {/* Footer Navigation */}
-        <div className="mt-16 pt-8 border-t border-gray-700 flex justify-between items-center">
-          <Link
-            href="/terms"
-            className="text-yellow-400 hover:text-yellow-300 transition-colors"
-          >
-            ← Terms of Service
-          </Link>
-          <Link
-            href="/"
-            className="text-yellow-400 hover:text-yellow-300 transition-colors"
-          >
-            Back to Home →
-          </Link>
-        </div>
-      </div>
-    </div>
-  )
+			<LegalSection id="contact" title="14. Contact Us">
+				<p>Questions about this Privacy Policy? Contact us at:</p>
+				<p>
+					<a href="mailto:privacy@frameo.app">privacy@frameo.app</a>
+				</p>
+			</LegalSection>
+		</LegalDocument>
+	)
 }

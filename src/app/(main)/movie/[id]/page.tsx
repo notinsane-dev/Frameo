@@ -1,10 +1,13 @@
-import { User } from "lucide-react"
 import type { Metadata } from "next"
-import Image from "next/image"
 import { cache } from "react"
+import Image from "next/image"
 
+import { CastSection } from "@/components/movie/CastSection"
 import { MovieCarousel } from "@/components/movie/MovieCarousel"
 import { MovieHero } from "@/components/movie/MovieHero"
+import { MovieRatings } from "@/components/movie/MovieRatings"
+import { MovieReviewsSection } from "@/components/reviews/MovieReviewsSection"
+import { getMovieExternalRatings } from "@/lib/omdb/getMovieExternalRatings"
 import { tmdb } from "@/lib/tmdb/client"
 
 type MovieDetailPageProps = {
@@ -64,10 +67,28 @@ export async function generateMetadata({ params }: MovieDetailPageProps): Promis
     }
   } catch {
     return {
-      title: "Movie Details",
-      description: "Explore movies on CineAI",
+      title: "Movie",
+      description: "Explore movies on Frameo",
     }
   }
+}
+
+function UnavailableState({ message }: { message: string }) {
+  return (
+    <div className="mx-auto flex min-h-[70dvh] w-full max-w-7xl flex-col items-center justify-center gap-4 px-6 text-center">
+      <Image
+        src="/frameo.webp"
+        alt="Frameo"
+        width={120}
+        height={90}
+        className="h-14 w-auto object-contain"
+      />
+      <h1 className="font-heading text-4xl font-bold tracking-tight text-[var(--color-text)]">
+        Movie unavailable
+      </h1>
+      <p className="max-w-xl text-[var(--color-text-secondary)]">{message}</p>
+    </div>
+  )
 }
 
 export default async function MovieDetailPage({ params }: MovieDetailPageProps) {
@@ -75,12 +96,7 @@ export default async function MovieDetailPage({ params }: MovieDetailPageProps) 
   const movieId = Number(id)
 
   if (!Number.isFinite(movieId) || movieId <= 0) {
-    return (
-      <div className="mx-auto flex min-h-[60vh] w-full max-w-7xl flex-col items-center justify-center gap-4 px-6 text-center">
-        <h1 className="font-playfair text-4xl text-white">Movie unavailable</h1>
-        <p className="max-w-xl text-white/50">The requested movie id is invalid.</p>
-      </div>
-    )
+    return <UnavailableState message="The requested movie id is invalid." />
   }
 
   let movie
@@ -93,109 +109,74 @@ export default async function MovieDetailPage({ params }: MovieDetailPageProps) 
 
   if (!movie) {
     return (
-      <div className="mx-auto flex min-h-[60vh] w-full max-w-7xl flex-col items-center justify-center gap-4 px-6 text-center">
-        <h1 className="font-playfair text-4xl text-white">Movie unavailable</h1>
-        <p className="max-w-xl text-white/50">
-          We could not load this movie right now. Please try again later.
-        </p>
-      </div>
+      <UnavailableState message="We could not load this movie right now. Please try again later." />
     )
   }
 
-  const backdropUrl = movie.backdrop_path ? tmdb.getImageUrl(movie.backdrop_path, "w780") : null
-  const posterUrl = movie.poster_path ? tmdb.getImageUrl(movie.poster_path, "w500") : null
+  const details = [
+    movie.runtime ? { label: "Runtime", value: `${movie.runtime} min` } : null,
+    movie.release_date ? { label: "Released", value: movie.release_date } : null,
+    movie.status ? { label: "Status", value: movie.status } : null,
+    movie.budget > 0
+      ? { label: "Budget", value: `$${movie.budget.toLocaleString()}` }
+      : null,
+    movie.revenue > 0
+      ? { label: "Revenue", value: `$${movie.revenue.toLocaleString()}` }
+      : null,
+  ].filter(Boolean) as Array<{ label: string; value: string }>
+
+  const externalRatings = await getMovieExternalRatings(movie.id)
 
   return (
-    <div className="relative overflow-hidden pb-12">
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-[#060606]" />
-
-        {backdropUrl ? (
-          <div
-            className="absolute inset-0 opacity-30 blur-2xl saturate-150"
-            style={{
-              backgroundImage: `url(${backdropUrl})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          />
-        ) : null}
-
-        {posterUrl ? (
-          <div
-            className="absolute -left-20 top-[18%] h-[38rem] w-[38rem] rounded-full opacity-35 blur-3xl"
-            style={{
-              backgroundImage: `url(${posterUrl})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          />
-        ) : null}
-
-        <div className="absolute -right-20 top-[24%] h-[34rem] w-[34rem] rounded-full bg-[#C9A84C]/10 blur-3xl" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(201,168,76,0.18),transparent_42%),radial-gradient(circle_at_76%_18%,rgba(59,130,246,0.13),transparent_40%),linear-gradient(to_bottom,rgba(8,8,8,0.58),rgba(8,8,8,0.96)_34%,rgba(8,8,8,1)_72%)]" />
-      </div>
-
+    <div className="relative overflow-hidden bg-[var(--color-ink)] pb-16">
       <MovieHero movie={movie} />
 
-      <div className="relative mx-auto w-full max-w-7xl space-y-10 px-6 pt-10">
-        <section className="space-y-4">
-          <h2 className="font-heading text-3xl text-white">Cast</h2>
-          <div className="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {movie.credits.cast.slice(0, 16).map((member) => (
-              <div
-                key={`${member.id}-${member.order}`}
-                className="w-32 flex-none rounded-xl border border-white/10 bg-white/[0.04] p-3"
-              >
-                <div className="relative mx-auto mb-3 h-16 w-16 overflow-hidden rounded-full border border-white/10 bg-white/5">
-                  {member.profile_path ? (
-                    <Image
-                      src={tmdb.getImageUrl(member.profile_path, "w200")}
-                      alt={member.name}
-                      fill
-                      unoptimized
-                      sizes="64px"
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-white/50">
-                      <User className="h-5 w-5" />
-                    </div>
-                  )}
-                </div>
-                <p className="line-clamp-1 text-center text-sm font-medium text-white">{member.name}</p>
-                <p className="line-clamp-1 text-center text-xs text-white/50">{member.character}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <MovieCarousel
-          movies={movie.similar.results}
-          title="More Like This"
-          subtitle="Movies with similar tone and story"
+      <div className="relative mx-auto w-full max-w-7xl space-y-16 px-6 pt-14 md:px-12">
+        <MovieRatings
+          tmdbScore={movie.vote_average}
+          tmdbVotes={movie.vote_count}
+          external={externalRatings}
         />
 
-        <section className="space-y-4">
-          <h2 className="font-heading text-3xl text-white">Details</h2>
-          <div className="flex flex-wrap gap-3">
-            <div className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white/80">
-              Runtime: {movie.runtime} min
+        <MovieReviewsSection movieId={movie.id} />
+
+        {movie.credits?.cast?.length ? <CastSection cast={movie.credits.cast} /> : null}
+
+        {movie.similar?.results?.length ? (
+          <MovieCarousel
+            movies={movie.similar.results}
+            title="More like this"
+            subtitle="Adjacent frames with a similar pulse"
+          />
+        ) : null}
+
+        {details.length > 0 ? (
+          <section className="space-y-6 border-t border-[var(--color-border)] pt-14">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--color-signal)]">
+                Specs
+              </p>
+              <h2 className="mt-2 font-heading text-3xl font-bold tracking-tight text-[var(--color-text)] md:text-4xl">
+                Details
+              </h2>
             </div>
-            <div className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white/80">
-              Release Date: {movie.release_date}
-            </div>
-            <div className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white/80">
-              Budget: ${movie.budget.toLocaleString()}
-            </div>
-            <div className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white/80">
-              Revenue: ${movie.revenue.toLocaleString()}
-            </div>
-            <div className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white/80">
-              Status: {movie.status}
-            </div>
-          </div>
-        </section>
+            <dl className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
+              {details.map((item) => (
+                <div
+                  key={item.label}
+                  className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]/40 px-4 py-5"
+                >
+                  <dt className="text-xs uppercase tracking-[0.14em] text-[var(--color-text-muted)]">
+                    {item.label}
+                  </dt>
+                  <dd className="mt-2 font-heading text-lg font-semibold tracking-tight text-[var(--color-text)]">
+                    {item.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        ) : null}
       </div>
     </div>
   )
