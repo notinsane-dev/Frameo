@@ -3,19 +3,19 @@ export function verificationEmailTemplate(name: string, url: string): string {
   <!DOCTYPE html>
   <html>
   <head><meta charset="utf-8"></head>
-  <body style="background:#080808; color:#ffffff; font-family:Arial,sans-serif; margin:0; padding:0;">
-    <div style="max-width:560px; margin:40px auto; padding:40px; background:#111111; border-radius:16px; border:1px solid rgba(255,255,255,0.08);">
+  <body style="background:#0B0D12; color:#ffffff; font-family:Arial,sans-serif; margin:0; padding:0;">
+    <div style="max-width:560px; margin:40px auto; padding:40px; background:#12151c; border-radius:16px; border:1px solid rgba(255,255,255,0.08);">
       <div style="text-align:center; margin-bottom:32px;">
-        <h1 style="color:#C9A84C; font-size:28px; margin:0;">🎬 CineAI</h1>
+        <h1 style="color:#FF4D3D; font-size:28px; margin:0;">Frameo</h1>
       </div>
 
       <h2 style="color:#ffffff; font-size:22px; margin:0 0 12px;">Verify your email</h2>
       <p style="color:rgba(255,255,255,0.6); font-size:15px; line-height:1.6; margin:0 0 28px;">
-        Hey ${name}! Welcome to CineAI. Click the button below to verify your email and start discovering movies.
+        Hey ${name}! Welcome to Frameo. Click the button below to verify your email and start discovering movies.
       </p>
 
       <div style="text-align:center; margin-bottom:28px;">
-        <a href="${url}" style="display:inline-block; background:#C9A84C; color:#000000; font-weight:700; font-size:15px; padding:14px 36px; border-radius:999px; text-decoration:none;">
+        <a href="${url}" style="display:inline-block; background:#FF4D3D; color:#0B0D12; font-weight:700; font-size:15px; padding:14px 36px; border-radius:999px; text-decoration:none;">
           Verify Email Address
         </a>
       </div>
@@ -27,7 +27,7 @@ export function verificationEmailTemplate(name: string, url: string): string {
       <hr style="border:none; border-top:1px solid rgba(255,255,255,0.08); margin:24px 0;" />
 
       <p style="color:rgba(255,255,255,0.2); font-size:12px; text-align:center; margin:0;">
-        © 2025 CineAI. Powered by TMDB & Gemini AI.
+        © ${new Date().getFullYear()} Frameo. Powered by TMDB & Gemini AI.
       </p>
     </div>
   </body>
@@ -40,10 +40,10 @@ export function passwordResetEmailTemplate(name: string, url: string): string {
   <!DOCTYPE html>
   <html>
   <head><meta charset="utf-8"></head>
-  <body style="background:#080808; color:#ffffff; font-family:Arial,sans-serif; margin:0; padding:0;">
-    <div style="max-width:560px; margin:40px auto; padding:40px; background:#111111; border-radius:16px; border:1px solid rgba(255,255,255,0.08);">
+  <body style="background:#0B0D12; color:#ffffff; font-family:Arial,sans-serif; margin:0; padding:0;">
+    <div style="max-width:560px; margin:40px auto; padding:40px; background:#12151c; border-radius:16px; border:1px solid rgba(255,255,255,0.08);">
       <div style="text-align:center; margin-bottom:32px;">
-        <h1 style="color:#C9A84C; font-size:28px; margin:0;">🎬 CineAI</h1>
+        <h1 style="color:#FF4D3D; font-size:28px; margin:0;">Frameo</h1>
       </div>
 
       <h2 style="color:#ffffff; font-size:22px; margin:0 0 12px;">Reset your password</h2>
@@ -52,7 +52,7 @@ export function passwordResetEmailTemplate(name: string, url: string): string {
       </p>
 
       <div style="text-align:center; margin-bottom:28px;">
-        <a href="${url}" style="display:inline-block; background:#C9A84C; color:#000000; font-weight:700; font-size:15px; padding:14px 36px; border-radius:999px; text-decoration:none;">
+        <a href="${url}" style="display:inline-block; background:#FF4D3D; color:#0B0D12; font-weight:700; font-size:15px; padding:14px 36px; border-radius:999px; text-decoration:none;">
           Reset Password
         </a>
       </div>
@@ -67,7 +67,7 @@ export function passwordResetEmailTemplate(name: string, url: string): string {
       <hr style="border:none; border-top:1px solid rgba(255,255,255,0.08); margin:24px 0;" />
 
       <p style="color:rgba(255,255,255,0.2); font-size:12px; text-align:center; margin:0;">
-        © 2025 CineAI. Powered by TMDB & Gemini AI.
+        © ${new Date().getFullYear()} Frameo. Powered by TMDB & Gemini AI.
       </p>
     </div>
   </body>
@@ -77,24 +77,25 @@ export function passwordResetEmailTemplate(name: string, url: string): string {
 
 export function welcomeEmailTemplate(name: string): string {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+  const year = new Date().getFullYear()
 
   return `
   <!DOCTYPE html>
   <html>
   <head><meta charset="utf-8"></head>
-  <body style="background:#080808; color:#ffffff; font-family:Arial,sans-serif; margin:0; padding:0;">
-    <div style="max-width:560px; margin:40px auto; padding:40px; background:#111111; border-radius:16px; border:1px solid rgba(255,255,255,0.08);">
+  <body style="background:#0B0D12; color:#ffffff; font-family:Arial,sans-serif; margin:0; padding:0;">
+    <div style="max-width:560px; margin:40px auto; padding:40px; background:#12151c; border-radius:16px; border:1px solid rgba(255,255,255,0.08);">
       <div style="text-align:center; margin-bottom:32px;">
-        <h1 style="color:#C9A84C; font-size:28px; margin:0;">🎬 CineAI</h1>
+        <h1 style="color:#FF4D3D; font-size:28px; margin:0;">Frameo</h1>
       </div>
 
-      <h2 style="color:#ffffff; font-size:22px; margin:0 0 12px;">Welcome to CineAI! 🎬</h2>
+      <h2 style="color:#ffffff; font-size:22px; margin:0 0 12px;">Welcome to Frameo</h2>
       <p style="color:rgba(255,255,255,0.6); font-size:15px; line-height:1.6; margin:0 0 28px;">
         Hi ${name}, your email is verified. Start exploring AI-powered movie recommendations.
       </p>
 
       <div style="text-align:center; margin-bottom:28px;">
-        <a href="${appUrl}" style="display:inline-block; background:#C9A84C; color:#000000; font-weight:700; font-size:15px; padding:14px 36px; border-radius:999px; text-decoration:none;">
+        <a href="${appUrl}" style="display:inline-block; background:#FF4D3D; color:#0B0D12; font-weight:700; font-size:15px; padding:14px 36px; border-radius:999px; text-decoration:none;">
           Explore Movies
         </a>
       </div>
@@ -102,7 +103,7 @@ export function welcomeEmailTemplate(name: string): string {
       <hr style="border:none; border-top:1px solid rgba(255,255,255,0.08); margin:24px 0;" />
 
       <p style="color:rgba(255,255,255,0.2); font-size:12px; text-align:center; margin:0;">
-        © 2025 CineAI. Powered by TMDB & Gemini AI.
+        © ${year} Frameo. Powered by TMDB & Gemini AI.
       </p>
     </div>
   </body>

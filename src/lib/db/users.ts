@@ -14,7 +14,7 @@ function toUsernameBase(input: string) {
 		.slice(0, 20)
 
 	if (normalized.length >= 3) return normalized
-	return "cineaiuser"
+	return "frameouser"
 }
 
 export function isTemporaryUsername(username?: string | null) {
@@ -61,7 +61,7 @@ export async function getUniqueUsername(base: string) {
 		counter += 1
 	}
 
-	return `cineai_${Math.floor(Math.random() * 900 + 100)}`
+	return `frameo_${Math.floor(Math.random() * 900 + 100)}`
 }
 
 /**
@@ -86,7 +86,7 @@ export async function ensureAppUser(sessionUser: {
 	}
 
 	if (!existing.username || existing.username.trim().length === 0) {
-		const baseFromEmail = sessionUser.email?.split("@")[0] || "cineaiuser"
+		const baseFromEmail = sessionUser.email?.split("@")[0] || "frameouser"
 		const preferredBase = sessionUser.username || baseFromEmail
 		const username = await getUniqueUsername(`temp_${preferredBase}`)
 		const now = new Date()

@@ -14,7 +14,7 @@ if (!EMAIL_FROM) {
 
 async function sendEmail(to: string, subject: string, html: string): Promise<void> {
   const { error } = await resend.emails.send({
-    from: `CineAI <${EMAIL_FROM}>`,
+    from: `Frameo <${EMAIL_FROM}>`,
     to,
     subject,
     html,
@@ -35,13 +35,13 @@ async function sendEmail(to: string, subject: string, html: string): Promise<voi
 }
 
 export async function sendVerificationEmail(email: string, name: string, url: string): Promise<void> {
-  await sendEmail(email, "Verify your CineAI account", verificationEmailTemplate(name, url))
+  await sendEmail(email, "Verify your Frameo account", verificationEmailTemplate(name, url))
 }
 
 export async function sendPasswordResetEmail(email: string, name: string, url: string): Promise<void> {
-  await sendEmail(email, "Reset your CineAI password", passwordResetEmailTemplate(name, url))
+  await sendEmail(email, "Reset your Frameo password", passwordResetEmailTemplate(name, url))
 }
 
 export async function sendWelcomeEmail(email: string, name: string): Promise<void> {
-  await sendEmail(email, "Welcome to CineAI", welcomeEmailTemplate(name))
+  await sendEmail(email, "Welcome to Frameo", welcomeEmailTemplate(name))
 }

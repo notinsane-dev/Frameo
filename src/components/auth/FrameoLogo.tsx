@@ -51,6 +51,3 @@ export function FrameoLogo({
     </div>
   )
 }
-
-/** @deprecated Use FrameoLogo */
-export const CineAILogo = FrameoLogo

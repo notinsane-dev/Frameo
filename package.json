@@ -1,7 +1,8 @@
 {
-  "name": "movierecommendation",
+  "name": "frameo",
   "version": "0.1.0",
   "private": true,
+  "description": "AI-powered movie recommendations with taste matching, social reviews, and charts",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

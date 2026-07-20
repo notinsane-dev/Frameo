@@ -4,7 +4,7 @@ export function generateUsernameSuggestions(name: string): string[] {
     .replace(/[^a-z0-9]/g, "")
     .slice(0, 15)
 
-  const fallback = base.length > 0 ? base : "cineaiuser"
+  const fallback = base.length > 0 ? base : "frameouser"
 
   const hash = Array.from(fallback).reduce((acc, char) => acc + char.charCodeAt(0), 0)
   const suffix2 = String((hash % 90) + 10)

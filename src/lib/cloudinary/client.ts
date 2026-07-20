@@ -21,7 +21,7 @@ export async function uploadProfilePicture(
 		cloudinary.uploader
 			.upload_stream(
 				{
-					folder: "cineai/avatars",
+					folder: "frameo/avatars",
 					public_id: `user_${userId}`,
 					overwrite: true,
 					transformation: [

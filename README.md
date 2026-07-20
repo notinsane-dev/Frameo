@@ -1,49 +1,74 @@
-# CineAI — AI-Powered Movie Recommendations
+# Frameo
 
-## Tech Stack
-- **Framework**: Next.js 16.2 (App Router, Turbopack)
+AI-powered movie recommendations — decide what to watch next with taste matching, social reviews, and charts.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+## Tech stack
+
+- **Framework**: Next.js (App Router)
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS v4 + shadcn/ui + Framer Motion + GSAP
-- **API**: tRPC v11 + TanStack Query
+- **UI**: Tailwind CSS + Framer Motion + GSAP
+- **API**: tRPC + TanStack Query
 - **Auth**: Better Auth (email + Google OAuth)
 - **Database**: Supabase Postgres + Drizzle ORM + pgvector
 - **Cache**: Redis (ioredis)
-- **AI**: Google Gemini (`gemini-2.0-flash` + `gemini-embedding-001`)
-- **Movies**: TMDB API
-- **Monitoring**: Sentry
-- **Deployment**: Vercel (app) + Supabase (DB) + Redis
+- **AI**: Google Gemini
+- **Movies**: TMDB (+ OMDB for external ratings)
+- **Email**: Resend
+- **Media**: Cloudinary
+- **Monitoring**: Sentry (optional)
+- **Deploy**: Vercel + Supabase + Redis
 
-## Getting Started
+## Getting started
+
 1. Clone the repo
-2. Create a Supabase project and enable the `vector` extension (SQL editor: `create extension if not exists vector;`)
-3. Copy `.env.example` → `.env.local` and fill in values (use the Supabase **Transaction pooler** `DATABASE_URL`)
+2. Create a [Supabase](https://supabase.com) project and enable pgvector (`create extension if not exists vector;`)
+3. Copy `.env.example` → `.env.local` and fill in values (use the Supabase **Transaction pooler** for `DATABASE_URL`)
 4. `npm install`
-5. Push schema: `npm run db:push` (uses session port `5432` + `public` schema only — avoids a known Supabase drizzle-kit crash)
-6. Create HNSW indexes (Supabase SQL editor): run [`drizzle/0001_hnsw_indexes.sql`](drizzle/0001_hnsw_indexes.sql)
-7. Optional: seed movie embeddings — `npm run db:seed-embeddings`
-8. `npm run dev`
+5. Push schema: `npm run db:push`
+6. Create HNSW indexes: run [`drizzle/0001_hnsw_indexes.sql`](drizzle/0001_hnsw_indexes.sql) in the Supabase SQL editor
+7. Optional: `npm run db:seed-embeddings`
+8. `npm run dev` → [http://localhost:3000](http://localhost:3000)
 
-## Database scripts
-- `npm run db:generate` — generate Drizzle migrations
-- `npm run db:push` — push schema to Supabase
-- `npm run db:migrate` — run migrations
-- `npm run db:studio` — open Drizzle Studio
-- `npm run db:seed-embeddings` — embed popular/trending TMDB movies
+## Scripts
 
-## Environment Variables
-See `.env.example` for all required variables.
+| Command | Purpose |
+|---------|---------|
+| `npm run dev` | Local development |
+| `npm run build` / `start` | Production build |
+| `npm run db:generate` | Generate Drizzle migrations |
+| `npm run db:push` | Push schema to Supabase |
+| `npm run db:migrate` | Run migrations |
+| `npm run db:studio` | Drizzle Studio |
+| `npm run db:seed-embeddings` | Embed popular/trending TMDB movies |
 
-## API Keys Required
-- Supabase: https://supabase.com (project + DB password)
-- TMDB API: https://www.themoviedb.org/settings/api
-- Gemini API: https://aistudio.google.com/app/apikey
-- Google OAuth: https://console.cloud.google.com
-- Sentry DSN: https://sentry.io
+## Environment variables
+
+All keys are listed in [`.env.example`](.env.example). You will need accounts for:
+
+- [Supabase](https://supabase.com) — Postgres + pgvector
+- [TMDB API](https://www.themoviedb.org/settings/api)
+- [OMDB](https://www.omdbapi.com/apikey.aspx) — optional external ratings
+- [Google AI Studio](https://aistudio.google.com/app/apikey) — Gemini
+- [Google Cloud Console](https://console.cloud.google.com) — OAuth
+- [Resend](https://resend.com) — transactional email
+- [Cloudinary](https://cloudinary.com) — avatars
+- Redis (local, Upstash, or similar)
+- [Sentry](https://sentry.io) — optional
+
+Generate `BETTER_AUTH_SECRET` with a long random string (32+ characters).
 
 ## Recommendations
-Personalized recs use **pgvector** cosine similarity over movie + user taste embeddings, then Gemini for natural-language reasons. Redis caches results for 30 minutes.
 
-## Deployment
-- Frontend: Vercel (auto-deploy from main branch)
-- Database: Supabase Postgres (pgvector enabled)
-- Cache: Redis (e.g. Upstash or self-hosted)
+Personalized picks use **pgvector** cosine similarity over movie + user taste embeddings, then Gemini for natural-language reasons. Redis caches results for 30 minutes.
+
+## Security
+
+See [SECURITY.md](SECURITY.md) for how to report vulnerabilities. Never commit `.env.local` or real API keys.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+Movie data courtesy of [TMDB](https://www.themoviedb.org/). This product uses the TMDB API but is not endorsed or certified by TMDB.
