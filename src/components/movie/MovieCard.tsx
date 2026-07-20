@@ -102,7 +102,7 @@ export function MovieCard({ movie, priority = false, showRating = true }: MovieC
       onKeyDown={handleKeyDown}
       onMouseEnter={handlePreloadTrailer}
       onFocus={handlePreloadTrailer}
-      className="group relative w-full overflow-hidden rounded-xl border border-white/10 bg-white/[0.04] text-left"
+      className="group relative w-full overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] text-left transition-colors duration-300 hover:border-[var(--color-signal-border)]"
     >
       <div className="relative aspect-[2/3] w-full overflow-hidden">
         {hasPoster ? (
@@ -113,15 +113,15 @@ export function MovieCard({ movie, priority = false, showRating = true }: MovieC
             unoptimized
             priority={priority}
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
-            className="object-cover"
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
             onError={() => setImageError(true)}
           />
         ) : (
-          <div className="h-full w-full bg-gradient-to-b from-zinc-700/40 to-zinc-900/80" />
+          <div className="h-full w-full bg-gradient-to-b from-[var(--color-ink-elevated)] to-[var(--color-ink)]" />
         )}
 
         {showRating ? (
-          <div className="absolute right-3 top-3 rounded-full bg-[#C9A84C] px-2.5 py-1 text-xs font-semibold text-[#080808]">
+          <div className="absolute right-3 top-3 rounded-full bg-[var(--color-signal)] px-2.5 py-1 text-xs font-semibold text-[var(--color-ink)]">
             {movie.vote_average.toFixed(1)}
           </div>
         ) : null}
@@ -153,15 +153,15 @@ export function MovieCard({ movie, priority = false, showRating = true }: MovieC
           ) : null}
           <p className="line-clamp-1 text-sm font-semibold text-white">{movie.title}</p>
           <p className="text-xs text-white/60">{releaseYear}</p>
-          <span className="mt-3 inline-flex rounded-full border border-[#C9A84C]/40 px-3 py-1 text-xs text-[#C9A84C]">
-            View Details
+          <span className="mt-3 inline-flex rounded-full border border-[var(--color-signal-border)] px-3 py-1 text-xs text-[var(--color-signal)]">
+            View details
           </span>
         </div>
       </div>
 
       <div className="space-y-1 p-3">
-        <p className="line-clamp-1 text-sm font-semibold text-white">{movie.title}</p>
-        <p className="text-xs text-white/50">{releaseYear}</p>
+        <p className="line-clamp-1 text-sm font-semibold text-[var(--color-text)]">{movie.title}</p>
+        <p className="text-xs text-[var(--color-text-secondary)]">{releaseYear}</p>
       </div>
 
       <TrailerModal
