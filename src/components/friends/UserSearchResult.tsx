@@ -1,65 +1,59 @@
 "use client"
 
-import { AnimatePresence, motion } from "framer-motion"
-import { Check, Clock3, UserCheck, UserPlus } from "lucide-react"
-
 import { AvatarUpload } from "@/components/shared/AvatarUpload"
+import { cn } from "@/lib/utils"
 import type { UserSearchResult as UserSearchResultType } from "@/types"
 
 type UserSearchResultProps = {
-  user: UserSearchResultType
-  onAction: () => void
+	user: UserSearchResultType
+	onAction: () => void
 }
 
-function renderActionLabel(status: UserSearchResultType["friendshipStatus"]) {
-  if (status === "pending_sent") return "Request Sent"
-  if (status === "pending_received") return "Accept Request"
-  if (status === "friends") return "Friends"
-  return "Add Friend"
-}
-
-function renderIcon(status: UserSearchResultType["friendshipStatus"]) {
-  if (status === "pending_sent") return <Clock3 className="h-4 w-4" />
-  if (status === "pending_received") return <Check className="h-4 w-4" />
-  if (status === "friends") return <UserCheck className="h-4 w-4" />
-  return <UserPlus className="h-4 w-4" />
+function actionLabel(status: UserSearchResultType["friendshipStatus"]) {
+	if (status === "pending_sent") return "Requested"
+	if (status === "pending_received") return "Accept"
+	if (status === "friends") return "Friends"
+	return "Add"
 }
 
 export function UserSearchResult({ user, onAction }: UserSearchResultProps) {
-  const isDisabled = user.friendshipStatus === "pending_sent" || user.friendshipStatus === "friends"
+	const isDisabled =
+		user.friendshipStatus === "pending_sent" || user.friendshipStatus === "friends"
+	const isPrimary =
+		user.friendshipStatus === "none" || user.friendshipStatus === "pending_received"
 
-  return (
-    <article className="flex items-center justify-between gap-4 rounded-xl border border-white/8 bg-white/4 p-4">
-      <div className="flex min-w-0 items-center gap-3">
-        <AvatarUpload currentImage={user.image} name={user.name} size="md" editable={false} />
-        <div className="min-w-0">
-          <p className="truncate text-white">{user.name}</p>
-          <p className="truncate text-xs text-white/50">{user.username ? `@${user.username}` : "No username"}</p>
-        </div>
-      </div>
+	return (
+		<article className="flex items-center justify-between gap-4 px-4 py-3">
+			<div className="flex min-w-0 items-center gap-3">
+				<AvatarUpload
+					currentImage={user.image}
+					name={user.name}
+					size="md"
+					editable={false}
+				/>
+				<div className="min-w-0">
+					<p className="truncate text-sm font-medium text-[var(--color-text)]">
+						{user.name}
+					</p>
+					<p className="truncate text-xs text-[var(--color-text-muted)]">
+						{user.username ? `@${user.username}` : "No username"}
+					</p>
+				</div>
+			</div>
 
-      <AnimatePresence mode="wait">
-        <motion.button
-          key={user.friendshipStatus}
-          initial={{ opacity: 0.7, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0.7, scale: 0.98 }}
-          type="button"
-          disabled={isDisabled}
-          onClick={onAction}
-          className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm ${
-            user.friendshipStatus === "pending_received"
-              ? "bg-[#C9A84C] text-[#080808]"
-              : user.friendshipStatus === "none"
-                ? "border border-[#C9A84C] text-[#C9A84C]"
-                : "bg-white/10 text-white/40"
-          }`}
-        >
-          {renderIcon(user.friendshipStatus)}
-          {renderActionLabel(user.friendshipStatus)}
-          {user.friendshipStatus === "friends" ? " ✓" : ""}
-        </motion.button>
-      </AnimatePresence>
-    </article>
-  )
+			<button
+				type="button"
+				disabled={isDisabled}
+				onClick={onAction}
+				className={cn(
+					"shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50",
+					isPrimary
+						? "bg-[var(--color-signal)] text-[var(--color-ink)] hover:bg-[#ff6b5a]"
+						: "border border-[var(--color-border)] text-[var(--color-text-muted)]",
+				)}
+			>
+				{actionLabel(user.friendshipStatus)}
+			</button>
+		</article>
+	)
 }
