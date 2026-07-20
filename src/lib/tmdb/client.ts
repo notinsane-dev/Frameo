@@ -43,6 +43,10 @@ export const tmdb = {
     })
   },
 
+  getMovieExternalIds(id: number) {
+    return tmdb.get<{ id: number; imdb_id: string | null }>(`/movie/${id}/external_ids`)
+  },
+
   getMovieVideos(id: number) {
     return tmdb.get<{ id: number; results: TMDBVideo[] }>(`/movie/${id}/videos`)
   },
@@ -56,6 +60,26 @@ export const tmdb = {
       with_genres: genreId,
       page,
     })
+  },
+
+  getWatchProviders(region = "US") {
+    return tmdb.get<{
+      results: Array<{ provider_id: number; provider_name: string; logo_path: string | null }>
+    }>("/watch/providers/movie", { watch_region: region })
+  },
+
+  getMovieWatchProviders(movieId: number) {
+    return tmdb.get<{
+      results: Record<
+        string,
+        {
+          link?: string
+          flatrate?: Array<{ provider_id: number; provider_name: string }>
+          rent?: Array<{ provider_id: number; provider_name: string }>
+          buy?: Array<{ provider_id: number; provider_name: string }>
+        }
+      >
+    }>(`/movie/${movieId}/watch/providers`)
   },
 
   getImageUrl(path: string, size: "w200" | "w500" | "w780" | "original" = "w500") {
