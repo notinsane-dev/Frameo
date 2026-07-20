@@ -7,6 +7,7 @@ import Lenis from "lenis"
 import { useEffect, useState, type ReactNode } from "react"
 
 import { ToastProvider } from "@/components/shared/ToastProvider"
+import { setLenisInstance } from "@/lib/lenis"
 import { getQueryClient, getTrpcClient, trpc } from "@/lib/trpc/client"
 
 // Register ScrollTrigger
@@ -24,7 +25,14 @@ export function AppProviders({ children }: AppProvidersProps) {
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      // Let modals / overflow panels keep native wheel scrolling
+      prevent: (node) =>
+        node instanceof HTMLElement &&
+        (node.hasAttribute("data-lenis-prevent") ||
+          node.closest("[data-lenis-prevent]") != null),
     })
+
+    setLenisInstance(lenis)
 
     // Integrate Lenis with GSAP ScrollTrigger
     lenis.on("scroll", ScrollTrigger.update)
@@ -36,6 +44,7 @@ export function AppProviders({ children }: AppProvidersProps) {
       gsap.ticker.remove((time) => {
         lenis.raf(time * 1000)
       })
+      setLenisInstance(null)
       lenis.destroy()
     }
   }, [])
