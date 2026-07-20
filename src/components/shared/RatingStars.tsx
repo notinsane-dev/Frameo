@@ -32,7 +32,10 @@ export function RatingStars({ rating, size = "md", showNumber = false }: RatingS
             return (
               <Star
                 key={index}
-                className={cn(starSizeMap[size], "fill-[#C9A84C] text-[#C9A84C]")}
+                className={cn(
+                  starSizeMap[size],
+                  "fill-[var(--color-signal)] text-[var(--color-signal)]",
+                )}
               />
             )
           }
@@ -40,19 +43,31 @@ export function RatingStars({ rating, size = "md", showNumber = false }: RatingS
           if (isHalf) {
             return (
               <span key={index} className="relative inline-flex">
-                <Star className={cn(starSizeMap[size], "text-white/20")} />
+                <Star className={cn(starSizeMap[size], "text-[var(--color-text-muted)]")} />
                 <span className="absolute inset-y-0 left-0 w-1/2 overflow-hidden">
-                  <Star className={cn(starSizeMap[size], "fill-[#C9A84C] text-[#C9A84C]")} />
+                  <Star
+                    className={cn(
+                      starSizeMap[size],
+                      "fill-[var(--color-signal)] text-[var(--color-signal)]",
+                    )}
+                  />
                 </span>
               </span>
             )
           }
 
-          return <Star key={index} className={cn(starSizeMap[size], "text-white/20")} />
+          return (
+            <Star
+              key={index}
+              className={cn(starSizeMap[size], "text-[var(--color-text-muted)]")}
+            />
+          )
         })}
       </div>
 
-      {showNumber ? <span className="text-sm text-white/70">{rating.toFixed(1)}/10</span> : null}
+      {showNumber ? (
+        <span className="text-sm text-[var(--color-text-secondary)]">{rating.toFixed(1)}/10</span>
+      ) : null}
     </div>
   )
 }
