@@ -2,15 +2,25 @@
 
 import { useSession } from "@/lib/auth/auth-client"
 
-export function useAuth() {
-  const { data: session, isPending: isLoading } = useSession()
+function hasCompletedUsername(user?: {
+	username?: string | null
+	usernameIsTemporary?: boolean | null
+} | null) {
+	if (!user?.username) return false
+	if (user.usernameIsTemporary) return false
+	if (user.username.startsWith("temp_")) return false
+	return true
+}
 
-  return {
-    user: session?.user ?? null,
-    session,
-    isLoading,
-    isAuthenticated: Boolean(session?.user),
-    hasUsername: Boolean(session?.user?.username),
-    isEmailVerified: Boolean(session?.user?.emailVerified),
-  }
+export function useAuth() {
+	const { data: session, isPending: isLoading } = useSession()
+
+	return {
+		user: session?.user ?? null,
+		session,
+		isLoading,
+		isAuthenticated: Boolean(session?.user),
+		hasUsername: hasCompletedUsername(session?.user),
+		isEmailVerified: Boolean(session?.user?.emailVerified),
+	}
 }
