@@ -2,243 +2,247 @@
 
 import { ArrowRight, Play } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import gsap from "gsap"
+import { AnimatePresence, motion } from "framer-motion"
 
 import { TrailerModal } from "@/components/movie/TrailerModal"
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner"
-import { RatingStars } from "@/components/shared/RatingStars"
+import { fadeIn } from "@/lib/animations"
 import { tmdb } from "@/lib/tmdb/client"
 import { getTrpcClient } from "@/lib/trpc/client"
 import type { TMDBMovie } from "@/lib/tmdb/types"
-import { AnimatePresence, motion } from "framer-motion"
-import { fadeIn, fadeUp } from "@/lib/animations"
 
 type HeroSectionProps = {
-  movies: TMDBMovie[]
+	movies: TMDBMovie[]
 }
 
 export function HeroSection({ movies }: HeroSectionProps) {
-  const router = useRouter()
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [isAutoPlay, setIsAutoPlay] = useState(true)
-  const [trailerOpen, setTrailerOpen] = useState(false)
-  const [trailerLoading, setTrailerLoading] = useState(false)
-  const [trailerByMovieId, setTrailerByMovieId] = useState<Record<number, string | null>>({})
+	const router = useRouter()
+	const [currentIndex, setCurrentIndex] = useState(0)
+	const [isAutoPlay, setIsAutoPlay] = useState(true)
+	const [trailerOpen, setTrailerOpen] = useState(false)
+	const [trailerLoading, setTrailerLoading] = useState(false)
+	const [trailerByMovieId, setTrailerByMovieId] = useState<Record<number, string | null>>({})
 
-  const currentMovie = movies[currentIndex] || movies[0]
-  const currentTrailerKey = currentMovie ? trailerByMovieId[currentMovie.id] ?? null : null
+	const brandRef = useRef<HTMLDivElement>(null)
+	const headlineRef = useRef<HTMLHeadingElement>(null)
+	const supportRef = useRef<HTMLParagraphElement>(null)
+	const ctaRef = useRef<HTMLDivElement>(null)
 
-  // Auto-rotate every 6 seconds
-  useEffect(() => {
-    if (!isAutoPlay) return
+	const currentMovie = movies[currentIndex] || movies[0]
+	const currentTrailerKey = currentMovie ? (trailerByMovieId[currentMovie.id] ?? null) : null
 
-    const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % movies.length)
-    }, 6000)
+	useEffect(() => {
+		if (!isAutoPlay || movies.length <= 1) return
+		const timer = setInterval(() => {
+			setCurrentIndex((prev) => (prev + 1) % movies.length)
+		}, 7000)
+		return () => clearInterval(timer)
+	}, [isAutoPlay, movies.length])
 
-    return () => clearInterval(timer)
-  }, [isAutoPlay, movies.length])
+	useEffect(() => {
+		const reduced =
+			typeof window !== "undefined" &&
+			window.matchMedia("(prefers-reduced-motion: reduce)").matches
 
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % movies.length)
-    setIsAutoPlay(false)
-  }
+		const targets = [brandRef.current, headlineRef.current, supportRef.current, ctaRef.current].filter(
+			Boolean,
+		) as HTMLElement[]
 
-  const handlePrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + movies.length) % movies.length)
-    setIsAutoPlay(false)
-  }
+		if (targets.length === 0) return
 
-  const handleDotClick = (index: number) => {
-    setCurrentIndex(index)
-    setIsAutoPlay(false)
-  }
+		if (reduced) {
+			gsap.set(targets, { opacity: 1, y: 0, clipPath: "none" })
+			return
+		}
 
-  const handleWatchTrailer = async () => {
-    if (!currentMovie || trailerLoading) return
+		const ctx = gsap.context(() => {
+			const tl = gsap.timeline({ defaults: { ease: "expo.out" } })
+			tl.fromTo(
+				brandRef.current,
+				{ opacity: 0, y: 28, clipPath: "inset(0 0 100% 0)" },
+				{ opacity: 1, y: 0, clipPath: "inset(0 0 0% 0)", duration: 0.85 },
+			)
+				.fromTo(
+					headlineRef.current,
+					{ opacity: 0, y: 40, clipPath: "inset(0 0 100% 0)" },
+					{ opacity: 1, y: 0, clipPath: "inset(0 0 0% 0)", duration: 0.9 },
+					"-=0.45",
+				)
+				.fromTo(
+					supportRef.current,
+					{ opacity: 0, y: 20 },
+					{ opacity: 1, y: 0, duration: 0.65 },
+					"-=0.4",
+				)
+				.fromTo(
+					ctaRef.current,
+					{ opacity: 0, y: 16 },
+					{ opacity: 1, y: 0, duration: 0.55 },
+					"-=0.35",
+				)
+		})
 
-    const cachedTrailer = trailerByMovieId[currentMovie.id]
-    if (cachedTrailer !== undefined) {
-      setTrailerOpen(true)
-      return
-    }
+		return () => ctx.revert()
+	}, [])
 
-    setTrailerLoading(true)
-    let shouldOpenModal = false
+	const handleWatchTrailer = async () => {
+		if (!currentMovie || trailerLoading) return
 
-    try {
-      const trpcClient = getTrpcClient()
-      const result = await trpcClient.movies.getTrailer.query({ id: currentMovie.id })
+		const cachedTrailer = trailerByMovieId[currentMovie.id]
+		if (cachedTrailer !== undefined) {
+			setTrailerOpen(true)
+			return
+		}
 
-      if (result.source === "error") {
-        return
-      }
+		setTrailerLoading(true)
+		let shouldOpenModal = false
 
-      const trailerKey = result.trailerKey ?? null
+		try {
+			const trpcClient = getTrpcClient()
+			const result = await trpcClient.movies.getTrailer.query({ id: currentMovie.id })
+			if (result.source === "error") return
+			const trailerKey = result.trailerKey ?? null
+			setTrailerByMovieId((prev) => ({ ...prev, [currentMovie.id]: trailerKey }))
+			shouldOpenModal = true
+		} catch {
+			return
+		} finally {
+			setTrailerLoading(false)
+			if (shouldOpenModal) setTrailerOpen(true)
+		}
+	}
 
-      setTrailerByMovieId((prev) => ({
-        ...prev,
-        [currentMovie.id]: trailerKey,
-      }))
+	return (
+		<section className="relative min-h-[100dvh] w-full overflow-hidden bg-[var(--color-ink)]">
+			<AnimatePresence mode="wait">
+				{currentMovie?.backdrop_path ? (
+					<motion.div
+						key={currentMovie.id}
+						variants={fadeIn}
+						initial="hidden"
+						animate="visible"
+						exit="hidden"
+						className="absolute inset-0"
+					>
+						<Image
+							src={tmdb.getImageUrl(currentMovie.backdrop_path, "w780")}
+							alt=""
+							fill
+							unoptimized
+							className="object-cover scale-105"
+							sizes="100vw"
+							priority
+						/>
+					</motion.div>
+				) : null}
+			</AnimatePresence>
 
-      shouldOpenModal = true
-    } catch {
-      return
-    } finally {
-      setTrailerLoading(false)
-      if (shouldOpenModal) {
-        setTrailerOpen(true)
-      }
-    }
-  }
+			<div className="absolute inset-0 bg-[var(--color-ink)]/35" />
+			<div className="absolute inset-0 bg-gradient-to-t from-[var(--color-ink)] via-[var(--color-ink)]/55 to-[var(--color-ink)]/25" />
+			<div className="absolute inset-0 bg-gradient-to-r from-[var(--color-ink)] via-[var(--color-ink)]/40 to-transparent" />
 
-  return (
-    <div className="relative h-screen w-full overflow-hidden bg-[#080808]">
-      {/* Background with movie backdrop */}
-      <AnimatePresence mode="wait">
-        {currentMovie?.backdrop_path && (
-          <motion.div
-            key={currentMovie.id}
-            variants={fadeIn}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            className="absolute inset-0"
-          >
-            <Image
-              src={tmdb.getImageUrl(currentMovie.backdrop_path, "w780")}
-              alt={currentMovie.title}
-              fill
-              unoptimized
-              className="object-cover"
-              sizes="100vw"
-              priority
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+			<div className="relative z-10 mx-auto flex min-h-[100dvh] w-full max-w-7xl flex-col justify-end px-6 pb-16 pt-28 md:px-12 md:pb-24">
+				<div className="max-w-3xl">
+					<div
+						ref={brandRef}
+						className="flex flex-wrap items-center gap-5 md:gap-7"
+					>
+						<Image
+							src="/frameo.webp"
+							alt=""
+							width={320}
+							height={240}
+							priority
+							className="h-[clamp(5.5rem,16vw,10rem)] w-auto object-contain object-left"
+						/>
+						<p className="font-heading text-[clamp(4.5rem,15vw,9.5rem)] font-extrabold leading-[0.88] tracking-[-0.03em] text-[var(--color-signal)]">
+							Frameo
+						</p>
+					</div>
+					<h1
+						ref={headlineRef}
+						className="mt-5 font-heading text-[clamp(1.75rem,4vw,2.75rem)] font-semibold leading-tight tracking-[-0.02em] text-[var(--color-text)]"
+					>
+						Tonight&apos;s pick, not tomorrow&apos;s list
+					</h1>
+					<p
+						ref={supportRef}
+						className="mt-4 max-w-md text-base text-[var(--color-text-secondary)] md:text-lg"
+					>
+						{currentMovie
+							? `Now trending: ${currentMovie.title}`
+							: "AI taste matching for the next frame you actually watch."}
+					</p>
 
-      {/* Overlays */}
-      <div className="absolute inset-0 bg-black/30" />
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#080808]" />
-      <div className="absolute inset-0 bg-gradient-to-r from-[#080808] via-transparent to-transparent" />
+					<div ref={ctaRef} className="mt-8 flex flex-wrap items-center gap-3">
+						<motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+							<Link
+								href="/recommendations"
+								className="inline-flex items-center gap-2 rounded-full bg-[var(--color-signal)] px-6 py-3 text-sm font-semibold text-[var(--color-ink)] transition-colors hover:bg-[#ff6b5a]"
+							>
+								Ask Frameo
+								<span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-ink)]/15">
+									<ArrowRight className="h-3.5 w-3.5" />
+								</span>
+							</Link>
+						</motion.div>
+						<motion.button
+							type="button"
+							whileHover={{ scale: 1.02 }}
+							whileTap={{ scale: 0.98 }}
+							onClick={handleWatchTrailer}
+							disabled={trailerLoading || !currentMovie}
+							className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border-hover)] px-5 py-3 text-sm font-medium text-[var(--color-text)] transition-colors hover:border-[var(--color-signal-border)] hover:text-[var(--color-signal)] disabled:opacity-60"
+						>
+							{trailerLoading ? (
+								<LoadingSpinner size="sm" className="scale-75" />
+							) : (
+								<Play className="h-4 w-4" />
+							)}
+							Trailer
+						</motion.button>
+						<button
+							type="button"
+							onClick={() => currentMovie && router.push(`/movie/${currentMovie.id}`)}
+							className="text-sm text-[var(--color-text-secondary)] underline-offset-4 hover:text-[var(--color-text)] hover:underline"
+						>
+							Open film
+						</button>
+					</div>
+				</div>
 
-      {/* Left decorative line */}
-      <div className="absolute left-6 top-1/2 h-32 w-1 -translate-y-1/2 bg-gradient-to-b from-transparent via-[#C9A84C] to-transparent" />
+				{movies.length > 1 ? (
+					<div className="mt-10 flex gap-2">
+						{movies.map((movie, index) => (
+							<button
+								key={movie.id}
+								type="button"
+								aria-label={`Show ${movie.title}`}
+								onClick={() => {
+									setCurrentIndex(index)
+									setIsAutoPlay(false)
+								}}
+								className={`h-1 rounded-full transition-all duration-500 ${
+									index === currentIndex
+										? "w-10 bg-[var(--color-signal)]"
+										: "w-4 bg-[var(--color-text)]/25 hover:bg-[var(--color-text)]/45"
+								}`}
+							/>
+						))}
+					</div>
+				) : null}
+			</div>
 
-      {/* Content - Bottom Left */}
-      <div className="absolute bottom-0 left-0 right-0 flex items-end justify-between px-6 pb-12 md:px-12 lg:pb-20">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentMovie?.id}
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            className="max-w-3xl flex-1"
-          >
-            {/* Label */}
-            <div className="mb-4 text-xs font-bold tracking-widest text-[#C9A84C]">
-              🎬 TRENDING NOW
-            </div>
-
-            {/* Title */}
-            <h1 className="mb-3 font-playfair text-5xl font-bold text-white lg:text-6xl">
-              {currentMovie?.title}
-            </h1>
-
-            {/* Metadata Row */}
-            <div className="mb-6 flex flex-wrap items-center gap-4">
-              <RatingStars rating={currentMovie?.vote_average || 0} showNumber />
-
-              {currentMovie?.release_date && (
-                <div className="text-sm text-white/70">
-                  {new Date(currentMovie.release_date).getFullYear()}
-                </div>
-              )}
-
-              {currentMovie?.genres && currentMovie.genres.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {currentMovie.genres.slice(0, 3).map((genre) => (
-                    <span
-                      key={genre.id}
-                      className="rounded-full border border-[#C9A84C]/50 px-2 py-1 text-xs text-[#C9A84C]"
-                    >
-                      {genre.name}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Overview */}
-            {currentMovie?.overview && (
-              <p className="mb-8 line-clamp-2 max-w-xl font-dm-sans text-base text-white/70">
-                {currentMovie.overview}
-              </p>
-            )}
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col gap-4 sm:flex-row">
-              <button
-                onClick={() => router.push(`/movie/${currentMovie?.id}`)}
-                className="group flex items-center justify-center gap-2 rounded-lg bg-[#C9A84C] px-6 py-3 font-dm-sans font-semibold text-[#080808] transition-all duration-300 hover:bg-[#D4B961]"
-              >
-                Explore Movie
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </button>
-
-              <button
-                onClick={handleWatchTrailer}
-                disabled={trailerLoading}
-                className="flex items-center justify-center gap-2 rounded-lg border border-white/20 px-6 py-3 font-dm-sans font-semibold text-white transition-all duration-300 hover:border-[#C9A84C] hover:bg-[#C9A84C]/5 hover:text-[#C9A84C] disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                {trailerLoading ? <LoadingSpinner size="sm" className="scale-75" /> : <Play className="h-4 w-4" />}
-                Watch Trailer
-              </button>
-            </div>
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Dots Counter - Right */}
-        <div className="ml-8 flex flex-col gap-3">
-          {movies.map((_, index) => (
-            <motion.button
-              key={index}
-              onClick={() => handleDotClick(index)}
-              className={`h-2.5 rounded-full transition-all duration-300 ${
-                index === currentIndex ? "w-6 bg-[#C9A84C]" : "w-2 bg-white/30 hover:bg-white/50"
-              }`}
-              whileHover={{ scale: 1.2 }}
-              whileTap={{ scale: 0.95 }}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <div className="absolute right-6 top-1/2 z-20 flex -translate-y-1/2 flex-col gap-4">
-        <button
-          onClick={handlePrev}
-          className="rounded-lg border border-white/20 p-2 text-white/60 transition-all duration-300 hover:border-[#C9A84C] hover:bg-[#C9A84C]/10 hover:text-[#C9A84C]"
-        >
-          <ArrowRight className="h-6 w-6 rotate-180" />
-        </button>
-        <button
-          onClick={handleNext}
-          className="rounded-lg border border-white/20 p-2 text-white/60 transition-all duration-300 hover:border-[#C9A84C] hover:bg-[#C9A84C]/10 hover:text-[#C9A84C]"
-        >
-          <ArrowRight className="h-6 w-6" />
-        </button>
-      </div>
-
-      <TrailerModal
-        isOpen={trailerOpen}
-        onClose={() => setTrailerOpen(false)}
-        trailerKey={currentTrailerKey}
-        movieTitle={currentMovie?.title ?? "Trailer"}
-      />
-    </div>
-  )
+			<TrailerModal
+				isOpen={trailerOpen}
+				onClose={() => setTrailerOpen(false)}
+				trailerKey={currentTrailerKey}
+				movieTitle={currentMovie?.title ?? "Trailer"}
+			/>
+		</section>
+	)
 }
