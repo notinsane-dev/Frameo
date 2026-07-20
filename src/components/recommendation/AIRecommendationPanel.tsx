@@ -1,192 +1,248 @@
 "use client"
 
-import { ArrowRight } from "lucide-react"
+import { useGSAP } from "@gsap/react"
+import gsap from "gsap"
+import { ArrowRight, EyeOff, Info } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { RatingStars } from "@/components/shared/RatingStars"
+import { useToastContext } from "@/components/shared/ToastProvider"
 import { tmdb } from "@/lib/tmdb/client"
-import { listItem, staggerContainer } from "@/lib/animations"
+import { trpc } from "@/lib/trpc/client"
 import type { RecommendationResult } from "@/types"
-import { AnimatePresence, motion } from "framer-motion"
+
+gsap.registerPlugin(useGSAP)
 
 type AIRecommendationPanelProps = {
-  recommendations: RecommendationResult[]
-  isLoading: boolean
+	recommendations: RecommendationResult[]
+	isLoading: boolean
 }
 
 const loadingMessages = [
-  "Analyzing your taste...",
-  "Consulting the AI...",
-  "Finding perfect matches...",
-  "Crafting recommendations...",
+	"Reading your taste map…",
+	"Pulling adjacent frames…",
+	"Scoring the shortlist…",
+	"Locking the cut…",
 ]
 
+function prefersReducedMotion() {
+	if (typeof window === "undefined") return false
+	return window.matchMedia("(prefers-reduced-motion: reduce)").matches
+}
+
 export function AIRecommendationPanel({
-  recommendations,
-  isLoading,
+	recommendations,
+	isLoading,
 }: AIRecommendationPanelProps) {
-  const [messageIndex, setMessageIndex] = useState(0)
+	const [messageIndex, setMessageIndex] = useState(0)
+	const [openWhy, setOpenWhy] = useState<number | null>(null)
+	const listRef = useRef<HTMLDivElement>(null)
+	const { showToast } = useToastContext()
+	const utils = trpc.useUtils()
+	const hideVibe = trpc.taste.hideVibe.useMutation({
+		onSuccess: async () => {
+			showToast("Got it — we'll tone down that vibe", "success")
+			await utils.recommendations.getRecommendations.invalidate()
+		},
+	})
 
-  useEffect(() => {
-    if (!isLoading) return
+	useEffect(() => {
+		if (!isLoading) return
+		const interval = setInterval(() => {
+			setMessageIndex((prev) => (prev + 1) % loadingMessages.length)
+		}, 1500)
+		return () => clearInterval(interval)
+	}, [isLoading])
 
-    const interval = setInterval(() => {
-      setMessageIndex((prev) => (prev + 1) % loadingMessages.length)
-    }, 1500)
+	useGSAP(
+		() => {
+			if (isLoading || !listRef.current || prefersReducedMotion()) return
+			const cards = listRef.current.querySelectorAll("[data-rec-card]")
+			gsap.fromTo(
+				cards,
+				{ opacity: 0, y: 28, filter: "blur(6px)" },
+				{
+					opacity: 1,
+					y: 0,
+					filter: "blur(0px)",
+					duration: 0.55,
+					stagger: 0.07,
+					ease: "expo.out",
+				},
+			)
+		},
+		{ dependencies: [isLoading, recommendations], scope: listRef },
+	)
 
-    return () => clearInterval(interval)
-  }, [isLoading])
+	if (isLoading) {
+		return (
+			<div className="flex flex-col items-center justify-center gap-6 py-20">
+				<div className="relative h-16 w-16">
+					<div className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-[var(--color-signal)]" />
+					<div className="absolute inset-3 rounded-full bg-[var(--color-signal-muted)]" />
+				</div>
+				<p className="text-center text-base text-[var(--color-text-secondary)]">
+					{loadingMessages[messageIndex]}
+				</p>
+			</div>
+		)
+	}
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-8 py-20">
-        {/* Pulsing Orb */}
-        <div className="relative h-24 w-24">
-          {/* Rotating Ring */}
-          <motion.div
-            className="absolute inset-0 rounded-full border-2 border-transparent border-t-[#C9A84C] border-r-[#C9A84C]"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          />
+	if (recommendations.length === 0) {
+		return (
+			<div className="flex flex-col items-center justify-center gap-2 py-20 text-center">
+				<p className="font-heading text-2xl font-bold text-[var(--color-text)]">No matches</p>
+				<p className="text-sm text-[var(--color-text-secondary)]">
+					Try another mood, genre, or turn off Watchable now
+				</p>
+			</div>
+		)
+	}
 
-          {/* Pulsing Center */}
-          <motion.div
-            className="absolute inset-4 rounded-full bg-[#C9A84C]"
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.8, 0.4, 0.8],
-            }}
-            transition={{ duration: 2, repeat: Infinity }}
-          />
-        </div>
+	return (
+		<div ref={listRef} className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+			{recommendations.map((rec, index) => {
+				const match = Math.round(rec.score * 100)
+				const year = rec.movie.release_date
+					? new Date(rec.movie.release_date).getFullYear()
+					: null
 
-        {/* Message Cycling */}
-        <div className="h-8">
-          <AnimatePresence mode="wait">
-            <motion.p
-              key={messageIndex}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="text-center text-lg text-white/80"
-            >
-              {loadingMessages[messageIndex]}
-            </motion.p>
-          </AnimatePresence>
-        </div>
-      </div>
-    )
-  }
+				return (
+					<article
+						key={rec.movie.id}
+						data-rec-card
+						className="group relative flex flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-ink-elevated)]"
+					>
+						<div className="relative h-36 overflow-hidden">
+							{rec.movie.backdrop_path || rec.movie.poster_path ? (
+								<Image
+									src={tmdb.getImageUrl(
+										rec.movie.backdrop_path || rec.movie.poster_path!,
+										"w780",
+									)}
+									alt=""
+									fill
+									unoptimized
+									sizes="(max-width: 768px) 100vw, 33vw"
+									className="object-cover transition-transform duration-500 group-hover:scale-105"
+								/>
+							) : (
+								<div className="h-full w-full bg-[var(--color-surface)]" />
+							)}
+							<div className="absolute inset-0 bg-gradient-to-t from-[var(--color-ink-elevated)] via-[var(--color-ink-elevated)]/40 to-transparent" />
+							<span className="absolute left-3 top-3 font-mono text-[11px] text-[var(--color-text)]/80">
+								{String(index + 1).padStart(2, "0")}
+							</span>
+							<span className="absolute right-3 top-3 rounded-full bg-[var(--color-ink)]/70 px-2.5 py-1 font-mono text-[11px] text-[var(--color-signal)] backdrop-blur-sm">
+								{match}% match
+							</span>
+						</div>
 
-  if (recommendations.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-4 py-20">
-        <p className="text-xl text-white/60">No recommendations found</p>
-        <p className="text-sm text-white/40">Try different preferences</p>
-      </div>
-    )
-  }
+						<div className="flex flex-1 flex-col gap-3 p-4 pt-0">
+							<div className="-mt-10 flex gap-3">
+								{rec.movie.poster_path ? (
+									<div className="relative h-[5.5rem] w-[3.65rem] flex-none overflow-hidden rounded-lg border border-[var(--color-border)] shadow-lg">
+										<Image
+											src={tmdb.getImageUrl(rec.movie.poster_path, "w200")}
+											alt=""
+											fill
+											unoptimized
+											sizes="60px"
+											className="object-cover"
+										/>
+									</div>
+								) : null}
+								<div className="min-w-0 pt-10">
+									<h3 className="line-clamp-2 font-heading text-lg font-bold tracking-tight text-[var(--color-text)]">
+										{rec.movie.title}
+									</h3>
+									<div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-[var(--color-text-secondary)]">
+										{year ? <span>{year}</span> : null}
+										<RatingStars rating={rec.movie.vote_average || 0} size="sm" />
+									</div>
+								</div>
+							</div>
 
-  return (
-    <motion.div
-      className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
-      variants={staggerContainer}
-      initial="hidden"
-      animate="visible"
-    >
-      <AnimatePresence>
-        {recommendations.map((rec) => (
-          <motion.div
-            key={rec.movie.id}
-            variants={listItem}
-            className="group relative overflow-hidden rounded-lg bg-gradient-to-br from-white/5 to-white/2 border border-white/10 transition-all duration-300 hover:border-[#C9A84C]/50"
-          >
-            {/* Blurred Background */}
-            {rec.movie.backdrop_path && (
-              <div className="absolute inset-0 z-0">
-                <Image
-                  src={tmdb.getImageUrl(rec.movie.backdrop_path, "w780")}
-                  alt={rec.movie.title}
-                  fill
-                  unoptimized
-                  className="object-cover blur-xl scale-110"
-                  sizes="100vw"
-                />
-              </div>
-            )}
+							{rec.availableOn && rec.availableOn.length > 0 ? (
+								<p className="text-[11px] text-[var(--color-cyan-rim)]">
+									On {rec.availableOn.join(" · ")}
+								</p>
+							) : null}
 
-            {/* Dark Overlay */}
-            <div className="absolute inset-0 z-1 bg-gradient-to-t from-[#080808] via-[#080808]/60 to-[#080808]/20" />
+							<div>
+								<p className="text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--color-signal)]">
+									Why you&apos;ll love it
+								</p>
+								<p className="mt-1 line-clamp-3 text-sm leading-relaxed text-[var(--color-text-secondary)]">
+									{rec.reason}
+								</p>
+							</div>
 
-            {/* Content */}
-            <div className="relative z-10 flex gap-4 p-5">
-              {/* Poster Thumbnail */}
-              {rec.movie.poster_path && (
-                <div className="flex-shrink-0">
-                  <Image
-                    src={tmdb.getImageUrl(rec.movie.poster_path, "w500")}
-                    alt={rec.movie.title}
-                    width={80}
-                    height={120}
-                    unoptimized
-                    className="rounded-lg object-cover"
-                  />
-                </div>
-              )}
+							<div
+								className="h-1 overflow-hidden rounded-full bg-white/[0.06]"
+								role="meter"
+								aria-valuenow={match}
+								aria-valuemin={0}
+								aria-valuemax={100}
+								aria-label="Match score"
+							>
+								<div
+									className="h-full rounded-full bg-[var(--color-signal)]"
+									style={{ width: `${match}%` }}
+								/>
+							</div>
 
-              {/* Info */}
-              <div className="flex flex-1 flex-col justify-between">
-                {/* Title & Year */}
-                <div>
-                  <h3 className="line-clamp-2 font-playfair text-lg font-bold text-white">
-                    {rec.movie.title}
-                  </h3>
-                  {rec.movie.release_date && (
-                    <p className="text-sm text-white/60">
-                      {new Date(rec.movie.release_date).getFullYear()}
-                    </p>
-                  )}
-                </div>
+							<div className="mt-auto flex flex-wrap gap-2 pt-1">
+								<button
+									type="button"
+									onClick={() =>
+										setOpenWhy((current) =>
+											current === rec.movie.id ? null : rec.movie.id,
+										)
+									}
+									className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)] px-3 py-1.5 text-[11px] text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-signal-border)] hover:text-[var(--color-signal)]"
+								>
+									<Info className="h-3 w-3" />
+									Why this?
+								</button>
+								{(rec.suggestedHideVibes ?? ["this vibe"]).slice(0, 1).map((vibe) => (
+									<button
+										key={vibe}
+										type="button"
+										disabled={hideVibe.isPending}
+										onClick={() => hideVibe.mutate({ vibe })}
+										className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)] px-3 py-1.5 text-[11px] text-[var(--color-text-muted)] transition-colors hover:border-red-400/40 hover:text-red-300 disabled:opacity-50"
+									>
+										<EyeOff className="h-3 w-3" />
+										Hide vibe
+									</button>
+								))}
+								<Link
+									href={`/movie/${rec.movie.id}`}
+									className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-[var(--color-signal)] px-3.5 py-1.5 text-[11px] font-semibold text-[var(--color-ink)] transition-colors hover:bg-[#ff6b5a]"
+								>
+									View
+									<ArrowRight className="h-3 w-3" />
+								</Link>
+							</div>
 
-                {/* Rating */}
-                <div className="my-2">
-                  <RatingStars rating={rec.movie.vote_average || 0} />
-                </div>
-
-                {/* Recommendation Section */}
-                <div className="mb-3 space-y-2">
-                  <p className="text-xs font-semibold text-[#C9A84C]">WHY YOU'LL LOVE IT:</p>
-                  <p className="line-clamp-2 text-xs text-white/70">{rec.reason}</p>
-                </div>
-
-                {/* Confidence Score */}
-                <div className="mb-3 flex items-center gap-2">
-                  <div className="h-1 flex-1 rounded-full bg-white/10">
-                    <motion.div
-                      className="h-full rounded-full bg-gradient-to-r from-[#C9A84C] to-[#E5CC8F]"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${rec.score * 100}%` }}
-                      transition={{ duration: 0.8, delay: 0.2 }}
-                    />
-                  </div>
-                  <span className="text-xs text-white/60">{Math.round(rec.score * 100)}%</span>
-                </div>
-
-                {/* View Button */}
-                <Link
-                  href={`/movie/${rec.movie.id}`}
-                  className="inline-flex items-center gap-2 rounded-lg bg-[#C9A84C]/10 border border-[#C9A84C]/30 px-3 py-1.5 text-xs font-semibold text-[#C9A84C] transition-all duration-300 hover:bg-[#C9A84C] hover:text-[#080808]"
-                >
-                  View Movie
-                  <ArrowRight className="h-3 w-3" />
-                </Link>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </AnimatePresence>
-    </motion.div>
-  )
+							{openWhy === rec.movie.id ? (
+								<div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-ink)]/60 p-3 text-xs leading-relaxed text-[var(--color-text-secondary)]">
+									<p className="mb-1.5 font-medium text-[var(--color-signal)]">Taste signals</p>
+									{rec.similarLiked && rec.similarLiked.length > 0 ? (
+										<p className="mb-1.5">Similar to likes: {rec.similarLiked.join(", ")}</p>
+									) : (
+										<p className="mb-1.5">Rate more films to sharpen these signals.</p>
+									)}
+									<p>{rec.reason}</p>
+								</div>
+							) : null}
+						</div>
+					</article>
+				)
+			})}
+		</div>
+	)
 }
