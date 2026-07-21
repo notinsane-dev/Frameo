@@ -2,7 +2,34 @@
   "name": "frameo",
   "version": "0.1.0",
   "private": true,
-  "description": "AI-powered movie recommendations with taste matching, social reviews, and charts",
+  "description": "Free open-source AI movie recommendations — taste matching, social reviews, and charts",
+  "license": "MIT",
+  "author": "Frameo contributors",
+  "homepage": "https://github.com/notinsane-dev/Frameo#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/notinsane-dev/Frameo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/notinsane-dev/Frameo/issues"
+  },
+  "keywords": [
+    "frameo",
+    "movie-recommendation",
+    "nextjs",
+    "typescript",
+    "tmdb",
+    "ai",
+    "gemini",
+    "trpc",
+    "drizzle",
+    "postgresql",
+    "supabase",
+    "pgvector",
+    "better-auth",
+    "redis",
+    "open-source"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
