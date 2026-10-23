@@ -64,14 +64,20 @@ export function RatingModal({
 	}
 
 	useEffect(() => {
-		if (isOpen) setMounted(true)
+		if (isOpen) {
+			const timer = setTimeout(() => setMounted(true), 0)
+			return () => clearTimeout(timer)
+		}
 	}, [isOpen])
 
 	useEffect(() => {
 		if (!isOpen) return
-		setRating(existingRating?.rating ?? 0)
-		setReview(existingRating?.review ?? "")
-		setHoverRating(0)
+		const timer = setTimeout(() => {
+			setRating(existingRating?.rating ?? 0)
+			setReview(existingRating?.review ?? "")
+			setHoverRating(0)
+		}, 0)
+		return () => clearTimeout(timer)
 	}, [existingRating, isOpen])
 
 	useEffect(() => {

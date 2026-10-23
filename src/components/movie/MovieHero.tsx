@@ -54,7 +54,10 @@ export function MovieHero({ movie }: MovieHeroProps) {
 	})
 
 	useEffect(() => {
-		setHasHydrated(true)
+		const timer = setTimeout(() => {
+			setHasHydrated(true)
+		}, 0)
+		return () => clearTimeout(timer)
 	}, [])
 
 	useEffect(() => {
@@ -64,12 +67,15 @@ export function MovieHero({ movie }: MovieHeroProps) {
 		const rateParam = params.get("rate")
 		const parsed = quoteParam ? Number(quoteParam) : NaN
 		if (rateParam === "1" || Number.isFinite(parsed)) {
-			if (Number.isFinite(parsed) && parsed > 0) {
-				setQuoteRatingId(parsed)
-			}
-			if (isAuthenticatedAfterHydration) {
-				setIsRatingModalOpen(true)
-			}
+			const timer = setTimeout(() => {
+				if (Number.isFinite(parsed) && parsed > 0) {
+					setQuoteRatingId(parsed)
+				}
+				if (isAuthenticatedAfterHydration) {
+					setIsRatingModalOpen(true)
+				}
+			}, 0)
+			return () => clearTimeout(timer)
 		}
 	}, [isAuthenticatedAfterHydration])
 

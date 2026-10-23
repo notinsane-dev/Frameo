@@ -30,7 +30,10 @@ export function SearchBar({
   const [isFocused, setIsFocused] = useState(false)
 
   useEffect(() => {
-    setValue(defaultValue)
+    const timer = setTimeout(() => {
+      setValue(defaultValue)
+    }, 0)
+    return () => clearTimeout(timer)
   }, [defaultValue])
 
   useEffect(() => {

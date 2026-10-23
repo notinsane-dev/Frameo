@@ -62,7 +62,10 @@ export function ReviewCard({ review, showMovieLink, compact }: ReviewCardProps) 
 	const [card, setCard] = useState(review)
 
 	useEffect(() => {
-		setCard(review)
+		const timer = setTimeout(() => {
+			setCard(review)
+		}, 0)
+		return () => clearTimeout(timer)
 	}, [review])
 
 	const setReaction = trpc.reviews.setReaction.useMutation({

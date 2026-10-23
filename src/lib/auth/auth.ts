@@ -25,10 +25,6 @@ if (!BETTER_AUTH_URL) {
 	throw new Error("Missing BETTER_AUTH_URL in environment variables")
 }
 
-if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
-	throw new Error("Missing Google OAuth environment variables")
-}
-
 export const auth = betterAuth({
 	secret: BETTER_AUTH_SECRET,
 	baseURL: BETTER_AUTH_URL,
@@ -56,10 +52,14 @@ export const auth = betterAuth({
 		},
 	},
 	socialProviders: {
-		google: {
-			clientId: GOOGLE_CLIENT_ID,
-			clientSecret: GOOGLE_CLIENT_SECRET,
-		},
+		...(GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET
+			? {
+					google: {
+						clientId: GOOGLE_CLIENT_ID,
+						clientSecret: GOOGLE_CLIENT_SECRET,
+					},
+				}
+			: {}),
 	},
 	plugins: [
 		username({

@@ -43,14 +43,11 @@ export function ActivityTab() {
 		)
 	}
 
-	let currentLabel = ""
-
 	return (
 		<div className="space-y-6">
-			{activities.map((activity) => {
+			{activities.map((activity, idx) => {
 				const label = dayLabel(activity.createdAt)
-				const showLabel = label !== currentLabel
-				currentLabel = label
+				const showLabel = idx === 0 || label !== dayLabel(activities[idx - 1].createdAt)
 
 				return (
 					<div key={activity.id}>

@@ -20,7 +20,10 @@ export function useWatchlist() {
 
   useEffect(() => {
     if (watchlistData) {
-      setOptimisticWatchlist(watchlistData)
+      const timer = setTimeout(() => {
+        setOptimisticWatchlist(watchlistData)
+      }, 0)
+      return () => clearTimeout(timer)
     }
   }, [watchlistData])
 
