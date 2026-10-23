@@ -1,7 +1,9 @@
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY
-
-if (!GEMINI_API_KEY) {
-	throw new Error("Missing GEMINI_API_KEY in environment variables")
+function getGeminiApiKey(): string {
+	const key = process.env.GEMINI_API_KEY
+	if (!key) {
+		throw new Error("Missing GEMINI_API_KEY in environment variables")
+	}
+	return key
 }
 
 type GeminiResponse = {
@@ -28,8 +30,9 @@ export type EmbedTaskType =
 	| "CLUSTERING"
 
 export async function generateContent(prompt: string): Promise<string> {
+	const apiKey = getGeminiApiKey()
 	const response = await fetch(
-		`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+		`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
 		{
 			method: "POST",
 			headers: {
@@ -66,8 +69,9 @@ export async function embedText(
 	text: string,
 	taskType: EmbedTaskType = "RETRIEVAL_DOCUMENT",
 ): Promise<number[]> {
+	const apiKey = getGeminiApiKey()
 	const response = await fetch(
-		`https://generativelanguage.googleapis.com/v1beta/models/${EMBEDDING_MODEL}:embedContent?key=${GEMINI_API_KEY}`,
+		`https://generativelanguage.googleapis.com/v1beta/models/${EMBEDDING_MODEL}:embedContent?key=${apiKey}`,
 		{
 			method: "POST",
 			headers: {

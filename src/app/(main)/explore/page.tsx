@@ -78,7 +78,10 @@ export default function ExplorePage() {
 			: "Popular now"
 
 	useEffect(() => {
-		setPage(1)
+		const timer = setTimeout(() => {
+			setPage(1)
+		}, 0)
+		return () => clearTimeout(timer)
 	}, [modeKey])
 
 	useEffect(() => {
@@ -86,23 +89,29 @@ export default function ExplorePage() {
 		if (!genreParam) return
 		const parsed = Number(genreParam)
 		if (Number.isFinite(parsed) && parsed > 0) {
-			setActiveGenre(parsed)
-			setSearchQuery("")
+			const timer = setTimeout(() => {
+				setActiveGenre(parsed)
+				setSearchQuery("")
+			}, 0)
+			return () => clearTimeout(timer)
 		}
 	}, [searchParams])
 
 	useEffect(() => {
 		if (!activeResults) return
 
-		setMovies((prev) => {
-			if (page === 1) {
-				return activeResults.results
-			}
+		const timer = setTimeout(() => {
+			setMovies((prev) => {
+				if (page === 1) {
+					return activeResults.results
+				}
 
-			const existing = new Set(prev.map((movie) => movie.id))
-			const next = activeResults.results.filter((movie) => !existing.has(movie.id))
-			return [...prev, ...next]
-		})
+				const existing = new Set(prev.map((movie) => movie.id))
+				const next = activeResults.results.filter((movie) => !existing.has(movie.id))
+				return [...prev, ...next]
+			})
+		}, 0)
+		return () => clearTimeout(timer)
 	}, [activeResults, page])
 
 	const selectGenre = (genreId: number | null) => {

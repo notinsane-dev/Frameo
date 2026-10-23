@@ -40,11 +40,14 @@ export function EditProfileModal({ isOpen, onClose, user }: EditProfileModalProp
 	const [debouncedUsername, setDebouncedUsername] = useState("")
 
 	useEffect(() => {
-		setName(user?.name || "")
-		setUsername(user?.username || "")
-		setBio(user?.bio || "")
-		setIsPublic(user?.isPublic ?? true)
-		setStreamingServices(user?.streamingServices ?? [])
+		const timer = setTimeout(() => {
+			setName(user?.name || "")
+			setUsername(user?.username || "")
+			setBio(user?.bio || "")
+			setIsPublic(user?.isPublic ?? true)
+			setStreamingServices(user?.streamingServices ?? [])
+		}, 0)
+		return () => clearTimeout(timer)
 	}, [user])
 
 	useEffect(() => {

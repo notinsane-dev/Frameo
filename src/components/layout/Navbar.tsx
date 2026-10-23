@@ -189,7 +189,10 @@ export function Navbar() {
   })
 
   useEffect(() => {
-    setPortalReady(true)
+    const timer = setTimeout(() => {
+      setPortalReady(true)
+    }, 0)
+    return () => clearTimeout(timer)
   }, [])
 
   useEffect(() => {

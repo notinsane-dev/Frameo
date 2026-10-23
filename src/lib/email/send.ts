@@ -5,16 +5,24 @@ import {
   welcomeEmailTemplate,
 } from "@/lib/email/templates"
 
-const EMAIL_FROM = process.env.EMAIL_FROM
 const RESEND_ALLOW_TEST_MODE = process.env.RESEND_ALLOW_TEST_MODE === "true"
 
-if (!EMAIL_FROM) {
-  throw new Error("Missing EMAIL_FROM in environment variables")
-}
-
 async function sendEmail(to: string, subject: string, html: string): Promise<void> {
+  const emailFrom = process.env.EMAIL_FROM
+  const apiKey = process.env.RESEND_API_KEY
+
+  if (!emailFrom || !apiKey) {
+    if (RESEND_ALLOW_TEST_MODE) {
+      console.warn(
+        `Resend test mode: skipped email "${subject}" to ${to} (EMAIL_FROM or RESEND_API_KEY is not configured).`,
+      )
+      return
+    }
+    throw new Error("Missing EMAIL_FROM or RESEND_API_KEY in environment variables")
+  }
+
   const { error } = await resend.emails.send({
-    from: `Frameo <${EMAIL_FROM}>`,
+    from: `Frameo <${emailFrom}>`,
     to,
     subject,
     html,

@@ -64,13 +64,16 @@ function SignupPageInner() {
 	const fileInputRef = useRef<HTMLInputElement | null>(null)
 
 	useEffect(() => {
-		if (refFromQuery) {
-			writeInviteRef(refFromQuery)
-			setInviteRef(refFromQuery)
-			return
-		}
-		const fromCookie = readInviteRef()
-		if (fromCookie) setInviteRef(fromCookie)
+		const timer = setTimeout(() => {
+			if (refFromQuery) {
+				writeInviteRef(refFromQuery)
+				setInviteRef(refFromQuery)
+				return
+			}
+			const fromCookie = readInviteRef()
+			if (fromCookie) setInviteRef(fromCookie)
+		}, 0)
+		return () => clearTimeout(timer)
 	}, [refFromQuery])
 
 	const usernameAvailability = trpc.user.checkUsernameAvailable.useQuery(

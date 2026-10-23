@@ -1,6 +1,7 @@
 "use client"
 
 import { FriendRequestCard } from "@/components/friends/FriendRequestCard"
+import { AvatarUpload } from "@/components/shared/AvatarUpload"
 import { timeAgo } from "@/lib/utils"
 import type { FriendRequest } from "@/types"
 
@@ -61,19 +62,12 @@ export function RequestsTab({
 								className="flex items-center justify-between gap-4 px-4 py-3"
 							>
 								<div className="flex min-w-0 items-center gap-3">
-									<div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-[var(--color-border)] bg-[var(--color-surface)]">
-										{request.receiverImage ? (
-											<img
-												src={request.receiverImage}
-												alt=""
-												className="h-full w-full object-cover"
-											/>
-										) : (
-											<span className="text-sm font-semibold text-[var(--color-text)]">
-												{request.receiverName.charAt(0).toUpperCase()}
-											</span>
-										)}
-									</div>
+									<AvatarUpload
+										currentImage={request.receiverImage}
+										name={request.receiverName}
+										size="sm"
+										editable={false}
+									/>
 									<div className="min-w-0">
 										<p className="truncate text-sm font-medium text-[var(--color-text)]">
 											{request.receiverName}
